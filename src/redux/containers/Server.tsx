@@ -16,7 +16,10 @@ const mapDispatchToProps = (dispatch: ThunkDispatch<{}, {}, any>) => ({
 	onAdd: (state: IServerModel) => () => dispatch(actions.add(state)),
 	onEdit: (state: IServerModel) => dispatch(actions.edit(state)),
 	onRun: (state: string) => dispatch(actions.run(state)),
-	onEditCode: (state: string) => dispatch(actions.edit_code(state)),
+
+	onEditCodeAsync: async (state: IServerModel) => {
+		await dispatch(actions.editCodeAsync(state));
+	},
 
 	onAddAsync: async (state: IServerModel) => {
 		await dispatch(actions.addAsync(state));

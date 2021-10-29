@@ -1,13 +1,13 @@
 import { FC } from 'react';
 import { ConfigProvider } from 'antd';
 import zhCN from 'antd/lib/locale/zh_CN';
-import Server from '../../redux/containers/Server';
+import Nav from '../layout/Index'
 
 import './App.css';
 
 const App: FC = () => (
 	<ConfigProvider locale={zhCN}>
-		<Server />
+		<Nav></Nav>
 	</ConfigProvider>
 );
 

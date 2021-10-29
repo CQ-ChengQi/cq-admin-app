@@ -83,3 +83,14 @@ export const initAsync = (state: IPage) => (dispatch: Dispatch) => {
 		dispatch(init(res));
 	});
 };
+
+export const editCode= (state: IServerModel) => ({
+	type: types.EDIT_CODE_SERVER,
+	state,
+});
+
+export const editCodeAsync = (state: IServerModel) => (dispatch: Dispatch) => {
+	post<IActionResult<IServerModel>>('api/server/edit_code', state).then((res) => {
+		dispatch(editCode(res.data));
+	});
+};

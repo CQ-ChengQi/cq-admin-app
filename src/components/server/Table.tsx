@@ -17,7 +17,7 @@ import { IPage } from '../../infrastructure/interfaces/ITable';
 export interface IServerTableProps {
 	onEdit: (model: IServerModel) => void;
 	onRun: (id: string) => void;
-	onEditCode: (id: string) => void;
+	onEditCode: (model: IServerModel) => void;
 	onDisbaled: (id: string) => void;
 	onEnabled: (id: string) => void;
 	onDel: (id: string) => void;
@@ -234,7 +234,7 @@ export class ServerTable extends React.Component<IServerTableProps, IServerTable
 														</MenuItem>
 														<MenuItem
 															key="edit_code"
-															onClick={() => onEditCode(record.id)}
+															onClick={() => onEditCode(record)}
 														>
 															代码
 														</MenuItem>

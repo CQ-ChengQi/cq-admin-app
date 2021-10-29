@@ -8,6 +8,7 @@ export interface IServerModel {
 	description: string;
 	updated_date: string;
 	created_date: string;
+	code: string;
 }
 
 export interface IServerAction<T> {
