@@ -1,0 +1,77 @@
+import * as types from '../constants/ServerActionTypes';
+import { ServerStatusEnum } from '../../infrastructure/enums/Server';
+import { IServerAction, IServerModel, IServerState } from '../../infrastructure/interfaces/IServer';
+import { IPageResult } from '../../infrastructure/interfaces/ITable';
+
+
+
+const server = (
+	state: IServerState = {
+		total: 0,
+		data: [],
+	},
+	action:
+		| IServerAction<IServerModel>
+		| IServerAction<string>
+		| IServerAction<IPageResult<IServerModel>>,
+): IServerState => {
+	switch (action.type) {
+		case types.INIT_SERVER:
+			const pageResult = action as IServerAction<IPageResult<IServerModel>>;
+			return {
+				total: pageResult.state.total,
+				data: [...pageResult.state.data],
+			};
+
+		case types.ADD_SERVER:
+			let data: IServerModel[] = [
+				(action as IServerAction<IServerModel>).state,
+				...state.data,
+			];
+			state.total += 1;
+			return {
+				...state,
+				data,
+			};
+		case types.EDIT_SERVER:
+			const actionState = (action as IServerAction<IServerModel>).state;
+			const editData = state.data.map((server) =>
+				server.id === actionState.id ? { ...server, ...actionState } : server,
+			);
+			return {
+				...state,
+				data: editData,
+			};
+		case types.DEL_SERVER:
+			const delData = state.data.filter((todo) => todo.id !== action.state);
+			return {
+				...state,
+				data: delData,
+			};
+		case types.DISBALED_SERVER:
+			const disbaledData = state.data.map((server) =>
+				server.id === action.state
+					? { ...server, status: ServerStatusEnum.disbaled }
+					: server,
+			);
+			return {
+				...state,
+				data: disbaledData,
+			};
+		case types.ENABLED_SERVER:
+			console.log(action)
+			const enabledData = state.data.map((server) =>
+				server.id === action.state
+					? { ...server, status: ServerStatusEnum.enabled }
+					: server,
+			);
+			return {
+				...state,
+				data: enabledData,
+			};
+		default:
+			return state;
+	}
+};
+
+export default server;
