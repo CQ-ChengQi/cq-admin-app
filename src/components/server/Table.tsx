@@ -1,6 +1,16 @@
 import React from 'react';
-import { Button, Dropdown, Input, Menu, Space, Table, TablePaginationConfig, Tag } from 'antd';
-import { DownOutlined, SearchOutlined } from '@ant-design/icons';
+import {
+	Button,
+	Dropdown,
+	Input,
+	Menu,
+	Modal,
+	Space,
+	Table,
+	TablePaginationConfig,
+	Tag,
+} from 'antd';
+import { DownOutlined, SearchOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import MenuItem from 'antd/lib/menu/MenuItem';
 
 import {
@@ -16,12 +26,13 @@ import { IPage } from '../../infrastructure/interfaces/ITable';
 
 export interface IServerTableProps {
 	onEdit: (model: IServerModel) => void;
-	onRun: (id: string) => void;
+	onRun: (id: IServerModel) => void;
 	onEditCode: (model: IServerModel) => void;
 	onDisbaled: (id: string) => void;
 	onEnabled: (id: string) => void;
 	onDel: (id: string) => void;
 	onInit: (page: IPage) => void;
+	onInstance: (model: IServerModel) => void;
 	data: IServerModel[];
 	total: number;
 }
@@ -122,8 +133,10 @@ export class ServerTable extends React.Component<IServerTableProps, IServerTable
 	}
 
 	public render(): JSX.Element {
-		const { onEdit, onRun, onDisbaled, onEnabled, onDel, onEditCode, total } = this.props;
+		const { onEdit, onRun, onDisbaled, onEnabled, onDel, onEditCode, onInstance, total } =
+			this.props;
 		const { pageSize, page } = this.state;
+		const { confirm } = Modal;
 
 		return (
 			<>
@@ -209,12 +222,19 @@ export class ServerTable extends React.Component<IServerTableProps, IServerTable
 											>
 												编辑
 											</Button>
+											<Button
+												type="primary"
+												size="small"
+												onClick={() => onInstance(record)}
+											>
+												实例
+											</Button>
 											<Dropdown
 												overlay={
 													<Menu>
 														<MenuItem
 															key="run"
-															onClick={() => onRun(record.id)}
+															onClick={() => onRun(record)}
 														>
 															运行
 														</MenuItem>
@@ -241,7 +261,24 @@ export class ServerTable extends React.Component<IServerTableProps, IServerTable
 														<Menu.Divider></Menu.Divider>
 														<MenuItem
 															key="del"
-															onClick={() => onDel(record.id)}
+															onClick={() => {
+																confirm({
+																	title: '系统提示',
+																	icon: (
+																		<ExclamationCircleOutlined />
+																	),
+																	content:
+																		'是否删除 "' +
+																		record.name +
+																		'" 服务 ?',
+																	okText: '删除',
+																	okType: 'danger',
+																	cancelText: '取消',
+																	onOk() {
+																		onDel(record.id);
+																	},
+																});
+															}}
 														>
 															删除
 														</MenuItem>

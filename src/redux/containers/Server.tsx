@@ -1,6 +1,6 @@
 import { connect } from 'react-redux';
 import { ThunkDispatch } from 'redux-thunk';
-import * as actions from '../actions/Server';
+import * as actions from '../actions/ServerAsync';
 import Server from '../../components/server/Index';
 import { IServerModel } from '../../infrastructure/interfaces/IServer';
 import { IPage } from '../../infrastructure/interfaces/ITable';
@@ -9,18 +9,18 @@ const mapStateToProps = (state: any) => {
 	return {
 		data: state.server.data,
 		total: state.server.total,
+		instanceData: state.server.instanceData,
+		insatnceTotal: state.server.instanceTotal,
 	};
 };
 
 const mapDispatchToProps = (dispatch: ThunkDispatch<{}, {}, any>) => ({
-	onAdd: (state: IServerModel) => () => dispatch(actions.add(state)),
-	onEdit: (state: IServerModel) => dispatch(actions.edit(state)),
-	onRun: (state: string) => dispatch(actions.run(state)),
-
+	onRunAsync: async (state: IServerModel) => {
+		await dispatch(actions.runAsync(state));
+	},
 	onEditCodeAsync: async (state: IServerModel) => {
 		await dispatch(actions.editCodeAsync(state));
 	},
-
 	onAddAsync: async (state: IServerModel) => {
 		await dispatch(actions.addAsync(state));
 	},
@@ -35,6 +35,18 @@ const mapDispatchToProps = (dispatch: ThunkDispatch<{}, {}, any>) => ({
 	},
 	onDisbaledAsync: async (state: string) => {
 		await dispatch(actions.disbaledAsync(state));
+	},
+	onInitInstanceAsync: async (page: IServerModel) => {
+		await dispatch(actions.initInstanceAsync(page));
+	},
+	onKillAsync: async (address: string) => {
+		await dispatch(actions.killAsync(address));
+	},
+	onPingAsync: async (address: string) => {
+		await dispatch(actions.pingAsync(address));
+	},
+	onClearAsync: async () => {
+		await dispatch(actions.clearAsync());
 	},
 });
 

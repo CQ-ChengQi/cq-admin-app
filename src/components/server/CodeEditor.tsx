@@ -67,7 +67,10 @@ export class ServerCodeEditor extends React.Component<
 					<Form ref={this.formRef} name="add" autoComplete="off" layout="vertical">
 						<Form.Item label="Lua Code" name="code">
 							<CodeMirror
-								height="200px"
+								style={{
+									border: '1px solid #d9d9d9',
+								}}
+								height="500px"
 								extensions={[StreamLanguage.define(lua)]}
 								onChange={(value, viewUpdate) => {
 									this.handlerChange(value);
