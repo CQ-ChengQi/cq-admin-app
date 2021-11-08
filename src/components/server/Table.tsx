@@ -230,6 +230,7 @@ export class ServerTable extends React.Component<IServerTableProps, IServerTable
 												实例
 											</Button>
 											<Dropdown
+												trigger={["click"]}
 												overlay={
 													<Menu>
 														<MenuItem

@@ -11,6 +11,11 @@ export interface IServerModel {
 	code: string;
 }
 
+export interface IServerKillParamModel {
+	name: string;
+	address: string;
+}
+
 export interface IServerInstanceModel {
 	address: string;
 	server_name: string;

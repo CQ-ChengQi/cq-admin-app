@@ -1,8 +1,8 @@
-
 import * as types from '../constants/ServerActionTypes';
 import {
 	IServerAction,
 	IServerInstanceModel,
+	IServerKillParamModel,
 	IServerModel,
 } from '../../infrastructure/interfaces/IServer';
 import { IPageResult } from '../../infrastructure/interfaces/ITable';
@@ -54,9 +54,9 @@ export const run = (state: IServerModel): IServerAction<IServerModel> => ({
 	state,
 });
 
-export const kill = (state: string): IServerAction<string> => ({
+export const kill = (param: IServerKillParamModel): IServerAction<IServerKillParamModel> => ({
 	type: types.KILL_SERVER_INSTANCE,
-	state,
+	state: param,
 });
 
 export const ping = (state: string): IServerAction<string> => ({

@@ -10,7 +10,7 @@ import {
 
 import Server from '../../redux/containers/Server';
 
-import './Index.css'
+import './Index.css';
 
 const { Header, Footer, Sider, Content } = Layout;
 
@@ -18,6 +18,7 @@ interface ILayoutProps {}
 
 interface ILayoutState {
 	collapsed: boolean;
+	height: number;
 }
 
 export default class Nav extends React.Component<ILayoutProps, ILayoutState> {
@@ -25,7 +26,24 @@ export default class Nav extends React.Component<ILayoutProps, ILayoutState> {
 		super(props);
 		this.state = {
 			collapsed: false,
+			height: document.documentElement.clientHeight,
 		};
+
+		this.handleResize = this.handleResize.bind(this);
+	}
+
+	private handleResize(e: any): void {
+		this.setState({
+			height: e.target.innerHeight,
+		});
+	}
+
+	public componentDidMount(): void {
+		window.addEventListener('resize', this.handleResize);
+	}
+
+	public componentWillUnmount(): void {
+		window.removeEventListener('resize', this.handleResize);
 	}
 
 	private toggle = () => {
@@ -39,7 +57,7 @@ export default class Nav extends React.Component<ILayoutProps, ILayoutState> {
 			<Layout
 				id="components-layout-demo-custom-trigger"
 				style={{
-					height: document.documentElement.clientHeight,
+					height: this.state.height,
 				}}
 			>
 				<Sider trigger={null} collapsible collapsed={this.state.collapsed}>

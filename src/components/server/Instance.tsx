@@ -8,12 +8,15 @@ import {
 	SorterResult,
 	TableCurrentDataSource,
 } from 'antd/lib/table/interface';
-import { IServerInstanceModel } from '../../infrastructure/interfaces/IServer';
+import {
+	IServerInstanceModel,
+	IServerKillParamModel,
+} from '../../infrastructure/interfaces/IServer';
 import { ServerInstanceType } from '../../infrastructure/enums/Server';
 import { IPage } from '../../infrastructure/interfaces/ITable';
 
 export interface IServerInstanceProps {
-	onKill: (address: string) => void;
+	onKill: (param: IServerKillParamModel) => void;
 	onPing: (address: string) => void;
 	onInit: (page: IPage) => void;
 	onCancel: () => void;
@@ -129,8 +132,8 @@ export class ServerInstance extends React.Component<IServerInstanceProps, IServe
 					visible={show}
 					forceRender={true}
 					width={1024}
-					maskClosable={false}
-					keyboard={false}
+					maskClosable={true}
+					keyboard={true}
 					footer={[]}
 					onCancel={() => onCancel()}
 				>
@@ -185,7 +188,12 @@ export class ServerInstance extends React.Component<IServerInstanceProps, IServe
 												<Button
 													type="primary"
 													size="small"
-													onClick={() => onKill(record.address)}
+													onClick={() =>
+														onKill({
+															name: record.server_name,
+															address: record.address,
+														})
+													}
 												>
 													Kill
 												</Button>

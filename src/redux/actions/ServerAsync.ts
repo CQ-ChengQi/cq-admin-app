@@ -2,7 +2,11 @@ import { Dispatch } from 'redux';
 import { message } from 'antd';
 import { post } from '../../infrastructure/common/Server';
 import { IActionResult, IPage, IPageResult } from '../../infrastructure/interfaces/ITable';
-import { IServerInstanceModel, IServerModel } from '../../infrastructure/interfaces/IServer';
+import {
+	IServerInstanceModel,
+	IServerKillParamModel,
+	IServerModel,
+} from '../../infrastructure/interfaces/IServer';
 import * as actions from './Server';
 
 export const editCodeAsync = (state: IServerModel) => (dispatch: Dispatch) => {
@@ -30,8 +34,9 @@ export const initInstanceAsync = (state: IServerModel) => (dispatch: Dispatch) =
 	});
 };
 
-export const killAsync = (state: string) => (dispatch: Dispatch) => {
-	post<IActionResult<string>>('api/server/kill_instance', { address: state }).then((res) => {
+export const killAsync = (param: IServerKillParamModel) => (dispatch: Dispatch) => {
+	console.log(param);
+	post<IActionResult<IServerKillParamModel>>('api/server/kill_instance', param).then((res) => {
 		if (res.success) {
 			dispatch(actions.kill(res.data));
 			message.success(res.message);

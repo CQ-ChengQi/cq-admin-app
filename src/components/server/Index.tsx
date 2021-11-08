@@ -2,7 +2,7 @@ import React, { RefObject } from 'react';
 import { Button, Modal, Space } from 'antd';
 import { ServerTable } from './Table';
 import { ServerEdit } from './Edit';
-import { IServerInstanceModel, IServerModel } from '../../infrastructure/interfaces/IServer';
+import { IServerInstanceModel, IServerKillParamModel, IServerModel } from '../../infrastructure/interfaces/IServer';
 import { IPage } from '../../infrastructure/interfaces/ITable';
 import { ServerCodeEditor } from './CodeEditor';
 import { ServerInstance } from './Instance';
@@ -21,7 +21,7 @@ interface IServerProps {
 	onDelAsync: (id: string) => void;
 	onInitAsync: (page: IPage) => void;
 	onInitInstanceAsync: (page: IServerModel) => void;
-	onKillAsync: (address: string) => void;
+	onKillAsync: (param: IServerKillParamModel) => void;
 	onPingAsync: (address: string) => void;
 	onClearAsync: () => void;
 	data: IServerModel[];
