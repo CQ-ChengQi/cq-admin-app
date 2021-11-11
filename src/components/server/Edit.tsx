@@ -1,7 +1,6 @@
 import React, { RefObject } from 'react';
-import { Modal, Form, Input, FormInstance } from 'antd';
+import { Modal, Form, Input, FormInstance, Radio } from 'antd';
 import { IServerModel } from '../../infrastructure/interfaces/IServer';
-
 
 export interface IServerEditProps {
 	show?: boolean;
@@ -82,6 +81,12 @@ export class ServerEdit extends React.Component<IServerEditProps> {
 							]}
 						>
 							<Input />
+						</Form.Item>
+						<Form.Item label="服务类型" name="type">
+							<Radio.Group buttonStyle="solid">
+								<Radio.Button value="0">多实例</Radio.Button>
+								<Radio.Button value="1">单实例</Radio.Button>
+							</Radio.Group>
 						</Form.Item>
 						<Form.Item
 							label="服务描述"

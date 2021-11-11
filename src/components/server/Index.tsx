@@ -2,7 +2,11 @@ import React, { RefObject } from 'react';
 import { Button, Modal, Space } from 'antd';
 import { ServerTable } from './Table';
 import { ServerEdit } from './Edit';
-import { IServerInstanceModel, IServerKillParamModel, IServerModel } from '../../infrastructure/interfaces/IServer';
+import {
+	IServerInstanceModel,
+	IServerKillParamModel,
+	IServerModel,
+} from '../../infrastructure/interfaces/IServer';
 import { IPage } from '../../infrastructure/interfaces/ITable';
 import { ServerCodeEditor } from './CodeEditor';
 import { ServerInstance } from './Instance';
@@ -71,6 +75,7 @@ export default class Server extends React.Component<IServerProps, IServerState> 
 
 	private handlerShowCodeEditor(model: IServerModel): void {
 		this.serverCodeEditorRef.current?.setFormValues(model);
+		this.serverCodeEditorRef.current?.setFormCallServerList(this.props.data);
 		this.setState({ showCodeEditor: true });
 	}
 
