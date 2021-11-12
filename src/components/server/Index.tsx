@@ -123,15 +123,6 @@ export default class Server extends React.Component<IServerProps, IServerState> 
 
 		return (
 			<>
-				<Space id="table-space-toolbar">
-					<Button type="primary" onClick={() => this.handlerShowEdit()}>
-						新建
-					</Button>
-					<Button type="dashed" onClick={() => this.handlerClear()}>
-						清理缓存
-					</Button>
-				</Space>
-
 				<ServerTable
 					onEdit={(model) => this.handlerShowEdit(model)}
 					onDel={onDelAsync}

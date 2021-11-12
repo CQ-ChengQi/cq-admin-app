@@ -1,28 +1,26 @@
 import React from 'react';
+import { Button, Dropdown, Input, Menu, Modal, Space, TablePaginationConfig, Tag } from 'antd';
 import {
-	Button,
-	Dropdown,
-	Input,
-	Menu,
-	Modal,
-	Space,
-	Table,
-	TablePaginationConfig,
-	Tag,
-} from 'antd';
-import { DownOutlined, SearchOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
+	DownOutlined,
+	SearchOutlined,
+	ExclamationCircleOutlined,
+	PlusOutlined,
+	ClearOutlined,
+} from '@ant-design/icons';
 import MenuItem from 'antd/lib/menu/MenuItem';
 
 import {
-	ColumnType,
 	FilterDropdownProps,
 	FilterValue,
 	SorterResult,
 	TableCurrentDataSource,
 } from 'antd/lib/table/interface';
+
 import { IServerModel } from '../../infrastructure/interfaces/IServer';
 import { ServerStatusEnum } from '../../infrastructure/enums/Server';
 import { IPage } from '../../infrastructure/interfaces/ITable';
+import ProTable from '@ant-design/pro-table';
+import { ProColumnType } from '@ant-design/pro-table/lib/typing';
 
 export interface IServerTableProps {
 	onEdit: (model: IServerModel) => void;
@@ -60,8 +58,6 @@ export class ServerTable extends React.Component<IServerTableProps, IServerTable
 		sorter: SorterResult<IServerModel> | SorterResult<IServerModel>[],
 		extra: TableCurrentDataSource<IServerModel>,
 	): void {
-		console.log(filters);
-
 		this.setState({
 			page: Number(pagination.current),
 			pageSize: Number(pagination.pageSize),
@@ -93,7 +89,7 @@ export class ServerTable extends React.Component<IServerTableProps, IServerTable
 		this.props.onInit(page);
 	}
 
-	private columnFilterProps(dataIndex: string, placeholder: string): ColumnType<IServerModel> {
+	private columnFilterProps(dataIndex: string, placeholder: string): ProColumnType<IServerModel> {
 		return {
 			filterDropdown: (props: FilterDropdownProps) => {
 				return (
@@ -140,10 +136,23 @@ export class ServerTable extends React.Component<IServerTableProps, IServerTable
 
 		return (
 			<>
-				<Table
+				<ProTable<IServerModel>
 					rowKey={(record: IServerModel) => record.id}
 					dataSource={this.props.data}
-					onChange={this.refersh}
+					// onChange={this.refersh}
+					bordered={false}
+					headerTitle="服务列表"
+					options={{ fullScreen: true }}
+					request={async (params, sorter, filter) => {
+						return {
+							data: [],
+							success: true,
+						};
+					}}
+					postData={(data) => {
+						console.log(data);
+						return data;
+					}}
 					pagination={{
 						total: total,
 						current: page,
@@ -152,6 +161,16 @@ export class ServerTable extends React.Component<IServerTableProps, IServerTable
 						showQuickJumper: true,
 						showSizeChanger: true,
 					}}
+					search={{}}
+					toolBarRender={() => [
+						<Button key="button" icon={<PlusOutlined />} type="primary">
+							新建
+						</Button>,
+						<Button key="button" icon={<ClearOutlined />} type="dashed">
+							清理缓存
+						</Button>,
+					]}
+					dateFormatter="string"
 					columns={[
 						{
 							key: 'name',
@@ -162,10 +181,10 @@ export class ServerTable extends React.Component<IServerTableProps, IServerTable
 							sorter: {
 								multiple: 2,
 							},
-							render: (text: string, record: IServerModel) => {
+							render: (dom, record) => {
 								return (
 									<Button type="link" size="small" onClick={() => onEdit(record)}>
-										{text}
+										{record.name}
 									</Button>
 								);
 							},
@@ -184,7 +203,13 @@ export class ServerTable extends React.Component<IServerTableProps, IServerTable
 							dataIndex: 'status',
 							width: 100,
 							fixed: 'left',
-							render: (text: string, record: IServerModel) =>
+							valueType: 'select',
+							valueEnum: {
+								all: { text: '全部', status: 'default' },
+								disbaled: { text: '禁用', status: 'disbaled' },
+								enabled: { text: '启用', status: 'enabled' },
+							},
+							render: (_, record) =>
 								record.status === ServerStatusEnum.disbaled ? (
 									<Tag color="red">禁用</Tag>
 								) : (
@@ -193,12 +218,17 @@ export class ServerTable extends React.Component<IServerTableProps, IServerTable
 						},
 						{
 							key: 'updated_date',
-							title: '最后更新日期',
+							title: '更新日期',
 							dataIndex: 'updated_date',
 							width: 180,
 							fixed: 'left',
+							valueType: 'dateRange',
+
 							sorter: {
 								multiple: 1,
+							},
+							render: (_, record: IServerModel) => {
+								return record.updated_date;
 							},
 						},
 						{
@@ -207,11 +237,18 @@ export class ServerTable extends React.Component<IServerTableProps, IServerTable
 							dataIndex: 'created_date',
 							width: 180,
 							fixed: 'left',
+							valueType: 'dateRange',
+							render: (_, record: IServerModel) => {
+								return record.created_date;
+							},
 						},
 						{
 							title: '操作',
 							width: 200,
-							render: (text: string, record: IServerModel) => {
+							hideInSearch: true,
+							hideInForm: true,
+							hideInSetting: true,
+							render: (_, record: IServerModel) => {
 								return (
 									<>
 										<Space size="middle">
@@ -230,7 +267,7 @@ export class ServerTable extends React.Component<IServerTableProps, IServerTable
 												实例
 											</Button>
 											<Dropdown
-												trigger={["click"]}
+												trigger={['click']}
 												overlay={
 													<Menu>
 														<MenuItem
@@ -296,7 +333,7 @@ export class ServerTable extends React.Component<IServerTableProps, IServerTable
 							},
 						},
 					]}
-				></Table>
+				/>
 			</>
 		);
 	}

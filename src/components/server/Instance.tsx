@@ -142,6 +142,7 @@ export class ServerInstance extends React.Component<IServerInstanceProps, IServe
 						dataSource={this.props.data}
 						onChange={this.refersh}
 						scroll={{ y: 400 }}
+						bordered={true}
 						pagination={{
 							total: total,
 							current: page,
