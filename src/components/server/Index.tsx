@@ -1,5 +1,5 @@
-import React, { RefObject } from 'react';
-import { Button, Modal, Space } from 'antd';
+import { useState } from 'react';
+import { Modal } from 'antd';
 import { ServerTable } from './Table';
 import { ServerEdit } from './Edit';
 import {
@@ -8,15 +8,15 @@ import {
 	IServerModel,
 } from '../../infrastructure/interfaces/IServer';
 import { IPage } from '../../infrastructure/interfaces/ITable';
-import { ServerCodeEditor } from './CodeEditor';
 import { ServerInstance } from './Instance';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
 
 import './Index.css';
+import { PageContainer } from '@ant-design/pro-layout';
 
 const { confirm } = Modal;
 
-interface IServerProps {
+export interface IServerProps {
 	onAddAsync: (state: IServerModel) => void;
 	onRunAsync: (state: IServerModel) => void;
 	onEditCodeAsync: (state: IServerModel) => void;
@@ -32,63 +32,45 @@ interface IServerProps {
 	total: number;
 	instanceData?: IServerInstanceModel[];
 	instanceTotal?: number;
+	siderbarWidth: number;
 }
 
-interface IServerState {
-	showEdit: boolean;
-	showCodeEditor: boolean;
-	showInstance: boolean;
-}
+export default function Server(props: IServerProps) {
+	const {
+		onAddAsync,
+		onInitAsync,
+		onRunAsync,
+		onDisbaledAsync,
+		onEnabledAsync,
+		onDelAsync,
+		onPingAsync,
+		onKillAsync,
+		onClearAsync,
+		data,
+		total,
+		instanceTotal,
+		instanceData,
+	} = props;
 
-export default class Server extends React.Component<IServerProps, IServerState> {
-	private serverEditRef: RefObject<ServerEdit>;
-	private serverCodeEditorRef: RefObject<ServerCodeEditor>;
+	const [showEdit, setShowEdit] = useState(false);
+	const [showInstance, setShowInstance] = useState(false);
 
-	constructor(props: IServerProps, state: IServerState) {
-		super(props);
+	const handlerHideEdit = () => {
+		setShowEdit(false);
+	};
 
-		this.state = { showEdit: false, showCodeEditor: false, showInstance: false };
-		this.serverEditRef = React.createRef<ServerEdit>();
-		this.serverCodeEditorRef = React.createRef<ServerCodeEditor>();
+	const handlerShowEdit = (model?: IServerModel) => {
+		setShowEdit(true);
+	};
 
-		this.handlerHideEdit = this.handlerHideEdit.bind(this);
-		this.handlerShowEdit = this.handlerShowEdit.bind(this);
-		this.handlerHideCodeEditor = this.handlerHideCodeEditor.bind(this);
-		this.handlerShowCodeEditor = this.handlerShowCodeEditor.bind(this);
-		this.handlerShowInstance = this.handlerShowInstance.bind(this);
-		this.handlerHideInstance = this.handlerHideInstance.bind(this);
-		this.handlerClear = this.handlerClear.bind(this);
-	}
+	const handlerShowInstance = (model: IServerModel) => {
+		setShowInstance(true);
+	};
+	const handlerHideInstance = () => {
+		setShowInstance(false);
+	};
 
-	private handlerHideEdit(): void {
-		this.setState({ showEdit: false });
-	}
-
-	private handlerShowEdit(model?: IServerModel): void {
-		this.serverEditRef.current?.setFormValues(model);
-		this.setState({ showEdit: true });
-	}
-
-	private handlerHideCodeEditor(): void {
-		this.setState({ showCodeEditor: false });
-	}
-
-	private handlerShowCodeEditor(model: IServerModel): void {
-		this.serverCodeEditorRef.current?.setFormValues(model);
-		this.serverCodeEditorRef.current?.setFormCallServerList(this.props.data);
-		this.setState({ showCodeEditor: true });
-	}
-
-	private handlerShowInstance(model: IServerModel): void {
-		this.props.onInitInstanceAsync(model);
-		this.setState({ showInstance: true });
-	}
-	private handlerHideInstance(): void {
-		this.setState({ showInstance: false });
-	}
-
-	private handlerClear(): void {
-		const { onClearAsync } = this.props;
+	const handlerClear = () => {
 		confirm({
 			title: '系统提示',
 			icon: <ExclamationCircleOutlined />,
@@ -100,57 +82,30 @@ export default class Server extends React.Component<IServerProps, IServerState> 
 				onClearAsync();
 			},
 		});
-	}
+	};
 
-	public render(): JSX.Element {
-		const {
-			onAddAsync,
-			onInitAsync,
-			onEditCodeAsync,
-			onRunAsync,
-			onDisbaledAsync,
-			onEnabledAsync,
-			onDelAsync,
-			onPingAsync,
-			onKillAsync,
-			data,
-			total,
-			instanceTotal,
-			instanceData,
-		} = this.props;
-
-		const { showEdit, showCodeEditor, showInstance } = this.state;
-
-		return (
-			<>
+	return (
+		<>
+			<PageContainer>
 				<ServerTable
-					onEdit={(model) => this.handlerShowEdit(model)}
+					onEdit={(model) => handlerShowEdit(model)}
 					onDel={onDelAsync}
 					onDisbaled={onDisbaledAsync}
 					onEnabled={onEnabledAsync}
-					onEditCode={(model) => this.handlerShowCodeEditor(model)}
 					onRun={onRunAsync}
-					onInstance={(model) => this.handlerShowInstance(model)}
+					onInstance={(model) => handlerShowInstance(model)}
 					data={data}
 					onInit={onInitAsync}
+					onClear={() => handlerClear()}
+					onAdd={() => handlerShowEdit()}
 					total={total}
 				/>
-
 				<ServerEdit
-					ref={this.serverEditRef}
 					show={showEdit}
 					onAdd={(model) => onAddAsync(model)}
 					onEdit={(model) => {}}
-					onCancel={() => this.handlerHideEdit()}
+					onCancel={() => handlerHideEdit()}
 				/>
-
-				<ServerCodeEditor
-					ref={this.serverCodeEditorRef}
-					show={showCodeEditor}
-					onCancel={() => this.handlerHideCodeEditor()}
-					onEdit={(model) => onEditCodeAsync(model)}
-				/>
-
 				<ServerInstance
 					onKill={(address) => onKillAsync(address)}
 					onPing={(address) => onPingAsync(address)}
@@ -158,9 +113,9 @@ export default class Server extends React.Component<IServerProps, IServerState> 
 					data={instanceData}
 					total={instanceTotal}
 					show={showInstance}
-					onCancel={() => this.handlerHideInstance()}
+					onCancel={() => handlerHideInstance()}
 				/>
-			</>
-		);
-	}
+			</PageContainer>
+		</>
+	);
 }

@@ -11,42 +11,43 @@ const mapStateToProps = (state: any) => {
 		total: state.server.total,
 		instanceData: state.server.instanceData,
 		insatnceTotal: state.server.instanceTotal,
+		siderbarWidth: state.layout.siderbarWidth,
 	};
 };
 
 const mapDispatchToProps = (dispatch: ThunkDispatch<{}, {}, any>) => ({
 	onRunAsync: async (state: IServerModel) => {
-		await dispatch(actions.runAsync(state));
+		dispatch(actions.runAsync(state));
 	},
 	onEditCodeAsync: async (state: IServerModel) => {
-		await dispatch(actions.editCodeAsync(state));
+		dispatch(actions.editCodeAsync(state));
 	},
 	onAddAsync: async (state: IServerModel) => {
-		await dispatch(actions.addAsync(state));
+		dispatch(actions.addAsync(state));
 	},
 	onInitAsync: async (page: IPage) => {
-		await dispatch(actions.initAsync(page));
+		dispatch(actions.initAsync(page));
 	},
 	onDelAsync: async (state: string) => {
-		await dispatch(actions.delAsync(state));
+		dispatch(actions.delAsync(state));
 	},
 	onEnabledAsync: async (state: string) => {
-		await dispatch(actions.enabledAsync(state));
+		dispatch(actions.enabledAsync(state));
 	},
 	onDisbaledAsync: async (state: string) => {
-		await dispatch(actions.disbaledAsync(state));
+		dispatch(actions.disbaledAsync(state));
 	},
 	onInitInstanceAsync: async (page: IServerModel) => {
-		await dispatch(actions.initInstanceAsync(page));
+		dispatch(actions.initInstanceAsync(page));
 	},
 	onKillAsync: async (param: IServerKillParamModel) => {
-		await dispatch(actions.killAsync(param));
+		dispatch(actions.killAsync(param));
 	},
 	onPingAsync: async (address: string) => {
-		await dispatch(actions.pingAsync(address));
+		dispatch(actions.pingAsync(address));
 	},
 	onClearAsync: async () => {
-		await dispatch(actions.clearAsync());
+		dispatch(actions.clearAsync());
 	},
 });
 

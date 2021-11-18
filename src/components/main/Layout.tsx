@@ -1,139 +1,93 @@
-import React from 'react';
-import {
-	LikeOutlined,
-	UserOutlined,
-	SmileOutlined,
-	CrownOutlined,
-	TabletOutlined,
-	AntDesignOutlined,
-} from '@ant-design/icons';
+import { useState } from 'react';
+import { UserOutlined, SmileOutlined, CrownOutlined } from '@ant-design/icons';
 import type { ProSettings } from '@ant-design/pro-layout';
-import ProLayout, { PageContainer, SettingDrawer } from '@ant-design/pro-layout';
-import { Avatar, Button, Col, Descriptions, Result, Row, Space, Statistic } from 'antd';
-
-import './Layout.css';
+import ProLayout from '@ant-design/pro-layout';
+import { Avatar } from 'antd';
+import { Link, Route, Routes } from 'react-router-dom';
 import Server from '../../redux/containers/Server';
 
-export interface ILayoutProps {}
-export interface ILayoutState {
-	settings: Partial<ProSettings>;
-	pathname: string;
+import './Layout.css';
+import ServerCodeEditor from '../../redux/containers/CodeEditor';
+
+export interface ILayoutProps {
+	onCollapsed: (collapsed: boolean) => void;
 }
 
-export class Layout extends React.Component<ILayoutProps, ILayoutState> {
-	constructor(props: ILayoutProps) {
-		super(props);
+export function Layout(props: ILayoutProps) {
+	const [settings] = useState<Partial<ProSettings> | undefined>({
+		fixSiderbar: true,
+		title: '服务管理',
+		navTheme: 'light',
+		fixedHeader: true,
+	});
+	const [pathname, setPathname] = useState('/welcome');
 
-		this.state = {
-			settings: {
-				title: '服务管理',
-				fixSiderbar: true,
-			},
-			pathname: '/home',
-		};
+	const { onCollapsed } = props;
 
-		this.setSettings = this.setSettings.bind(this);
-		this.setPathname = this.setPathname.bind(this);
-	}
+	return (
+		<ProLayout
+			layout="side"
+			waterMarkProps={{
+				content: 'CQ Admin APP',
+			}}
+			location={{
+				pathname: pathname,
+			}}
+			route={{
+				path: '/',
+				routes: [
+					{
+						path: '/welcome',
+						name: '首页',
+						icon: <SmileOutlined />,
+					},
 
-	private setSettings(settings: Partial<ProSettings>): void {
-		this.setState({ settings: settings });
-	}
-
-	private setPathname(path: string): void {
-		this.setState({ pathname: path });
-	}
-
-	public render(): JSX.Element {
-		const { settings, pathname } = this.state;
-
-		return (
-			<div
-				id="test-pro-layout"
-				style={{
-					height: '100vh',
-				}}
-			>
-				<ProLayout
-					{...settings}
-					location={{
-						pathname,
-					}}
-					route={{
-						path: '/',
+					{
+						path: '/manager',
+						name: '管理',
+						icon: <CrownOutlined />,
 						routes: [
 							{
-								path: '/home',
-								name: '首页',
-								icon: <SmileOutlined />,
+								path: '/manager/server',
+								name: '服务管理',
 							},
 							{
-								path: '/admin',
-								name: '管理页',
-								icon: <CrownOutlined />,
-								access: 'canAdmin',
-								component: './Admin',
-								routes: [
-									{
-										path: '/admin/sub-page1',
-										name: '服务管理',
-										icon: <CrownOutlined />,
-										component: './Server',
-									},
-									{
-										path: '/admin/sub-page2',
-										name: '二级页面',
-										icon: <CrownOutlined />,
-										component: './Welcome',
-									},
-									{
-										path: '/admin/sub-page3',
-										name: '三级页面',
-										icon: <CrownOutlined />,
-										component: './Welcome',
-									},
-								],
+								path: '/manager/codeeditor',
+								name: '代码编辑',
 							},
 						],
-					}}
-					onMenuHeaderClick={(e) => console.log(e)}
-					waterMarkProps={{
-						content: '服务管理',
-					}}
-					rightContentRender={() => {
-						return (
-							<div>
-								<Avatar shape="square" size="small" icon={<UserOutlined />} />
-							</div>
-						);
-					}}
-					menuItemRender={(item, dom) => (
-						<>
-							<span
-								onClick={() => {
-									this.setPathname(item.path || '/welcome');
-								}}
-							>
-								{dom}
-							</span>
-						</>
-					)}
-					{...settings}
-				>
-					<PageContainer>
-						<Server></Server>
-					</PageContainer>
-				</ProLayout>
-				{/* <SettingDrawer
-					pathname={'/'}
-					getContainer={() => document.getElementById('test-pro-layout')}
-					settings={settings}
-					onSettingChange={(changeSetting) => {
-						this.setSettings(changeSetting);
-					}}
-					disableUrlParams
-				/> */}
-			</div>
-		);
-	}
+					},
+				],
+			}}
+			onCollapse={(collapsed: boolean) => {
+				onCollapsed(collapsed);
+			}}
+			menuItemRender={(item, dom) => {
+				return (
+					<Link
+						to={item.path || '/'}
+						onClick={() => {
+							const to = item.path || '/';
+							setPathname(to);
+						}}
+					>
+						{dom}
+					</Link>
+				);
+			}}
+			rightContentRender={() => {
+				return (
+					<div>
+						<Avatar shape="square" size="small" icon={<UserOutlined />} />
+					</div>
+				);
+			}}
+			{...settings}
+		>
+			<Routes>
+				<Route path="/manager/server" element={<Server />} />
+				<Route path="/manager/codeeditor" element={<ServerCodeEditor />} />
+			</Routes>
+		</ProLayout>
+	);
 }
