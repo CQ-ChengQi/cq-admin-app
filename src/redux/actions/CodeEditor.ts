@@ -1,16 +1,35 @@
+import { IServerCodeModel, IServerSelectModel } from '../../infrastructure/interfaces/ICodeEditor';
 import * as types from '../constants/CodeEditorActionTypes';
 
 export const init_monaco = () => ({
-	type: types.MONACO_INIT_CODEEDITOR,
-});
-
-export const init = (id: string) => ({
 	type: types.INIT_CODEEDITOR,
-	id,
 });
 
-export const save = (id: string, code: string) => ({
+export const save = (model: IServerCodeModel) => ({
 	type: types.SAVE_CODEEDITOR,
-	id,
+	model,
+});
+
+export const loadServer = (servers: IServerSelectModel[]) => ({
+	type: types.LOAD_SERVER_CODEEDITOR,
+	servers,
+});
+
+export const loadCode = (code: string) => ({
+	type: types.LOAD_CODE_CODEEDITOR,
 	code,
+});
+
+export const loadDepends = (ids: string[]) => ({
+	type: types.LOAD_DEPENDS_CODEEDITOR,
+	ids,
+});
+
+export const clearCode = () => ({
+	type: types.CLEAR_CODEEDITOR,
+});
+
+export const editingCode = (editing: boolean) => ({
+	type: types.EDITING_CODEEDITOR,
+	editing,
 });

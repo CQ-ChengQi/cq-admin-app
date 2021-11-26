@@ -6,6 +6,7 @@ import Layout from '../../redux/containers/Layout';
 
 import '@ant-design/pro-layout/dist/layout.css';
 import '@ant-design/pro-table/dist/table.css';
+import '@ant-design/pro-card/dist/card.css';
 
 import './App.css';
 
