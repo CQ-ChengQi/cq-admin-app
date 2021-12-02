@@ -13,12 +13,13 @@ const mapStateToProps = (state: any) => {
 		serverSelectData: state.codeeditor.serverSelectData,
 		depends: state.codeeditor.depends,
 		editing: state.codeeditor.editing,
+		id: state.codeeditor.id,
 	};
 };
 
 const mapDispatchToProps = (dispatch: ThunkDispatch<{}, {}, any>) => ({
 	onCollapsed: (collapsed: boolean) => {},
-	onMonacoInit: async () => {
+	onMonacoInit: () => {
 		dispatch(actions.init_monaco());
 	},
 	onLoadSelect: async () => {
@@ -38,6 +39,12 @@ const mapDispatchToProps = (dispatch: ThunkDispatch<{}, {}, any>) => ({
 	},
 	onEditing: async (editing: boolean) => {
 		dispatch(actions.editingCode(editing));
+	},
+	onSetCode: async (code: string) => {
+		dispatch(actions.setCode(code));
+	},
+	onSetDepends: async (ids: string[]) => {
+		dispatch(actions.setDepends(ids));
 	},
 });
 
