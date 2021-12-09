@@ -5,6 +5,7 @@ const layout = (
 	state: ILayoutState = {
 		collapsed: false,
 		siderbarWidth: 210,
+		menu: '',
 	},
 	action: any,
 ): ILayoutState => {
@@ -14,6 +15,12 @@ const layout = (
 				...state,
 				siderbarWidth: action.collapsed ? 70 : 230,
 				collapsed: action.collapsed,
+			};
+		case types.MENU_LAYOUT:
+			console.log(action.payload);
+			return {
+				...state,
+				menu: action.payload.path,
 			};
 	}
 

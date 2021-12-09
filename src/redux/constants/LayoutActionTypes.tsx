@@ -1,1 +1,2 @@
 export const COLLAPSED_LAYOUT = 'COLLAPSED_LAYOUT';
+export const MENU_LAYOUT = 'MENU_LAYOUT';

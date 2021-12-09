@@ -1,13 +1,12 @@
 /* eslint-disable no-template-curly-in-string */
 import { useEffect, useState } from 'react';
 import MonacoEditor, { monaco } from 'react-monaco-editor';
-import { suggestions, addSuggestion, removeSuggestion } from './CompletionItem';
+import { suggestions, addSuggestion, removeSuggestion, setSuggestionCode } from './CompletionItem';
 import { LabeledValue } from 'antd/lib/select';
 import { FooterToolbar, PageContainer } from '@ant-design/pro-layout';
 import ProForm, { ProFormSelect } from '@ant-design/pro-form';
 import ProCard from '@ant-design/pro-card';
-import { IServerCodeModel } from '../../infrastructure/interfaces/ICodeEditor';
-// import { ExclamationCircleOutlined } from '@ant-design/icons';
+import { IServerCodeModel, IServerDenpedCodeModel, IServerSelectItemModel } from '../../infrastructure/interfaces/ICodeEditor';
 import Checkbox from 'antd/lib/checkbox/Checkbox';
 import { Tooltip } from 'antd';
 
@@ -18,8 +17,9 @@ export interface ICodeEditorProps {
 	collapsed: boolean;
 	init: boolean;
 	code: string;
-	serverSelectData: LabeledValue[];
+	serverSelectData: IServerSelectItemModel[];
 	depends: string[];
+	dependCodes: IServerDenpedCodeModel[];
 	editing: boolean;
 	onMonacoInit: () => void;
 	onLoadSelect: () => void;
@@ -74,10 +74,11 @@ export function CodeEditor(props: ICodeEditorProps) {
 
 	useEffect(() => {
 		serverSelectData.forEach((item) => {
-			if (depends.findIndex((s) => s === String(item.value)) >= 0) {
-				addSuggestion(String(item.label));
+			console.log(item);
+			if (depends.findIndex((s) => s === item.value) >= 0) {
+				addSuggestion(item.label, item.code);
 			} else {
-				removeSuggestion(String(item.label));
+				removeSuggestion(item.label);
 			}
 		});
 	}, [depends, serverSelectData]);
@@ -119,11 +120,10 @@ export function CodeEditor(props: ICodeEditorProps) {
 							wrapperCol={{ span: 16 }}
 							layout="horizontal"
 							onFinish={async (values) => {
-								let list = serverSelectData.filter((item) => depends.findIndex((s: string) => s === item.value) >= 0);
 								onSave({
 									id: values.server,
 									code: code,
-									depends: list,
+									depends: depends,
 									name: serverName,
 								});
 							}}
@@ -206,6 +206,7 @@ export function CodeEditor(props: ICodeEditorProps) {
 							}}
 							onChange={(value) => {
 								onSetCode(value);
+								setSuggestionCode(value);
 							}}
 							value={code}
 						/>

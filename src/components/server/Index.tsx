@@ -2,17 +2,12 @@ import { useState } from 'react';
 import { Modal } from 'antd';
 import { ServerTable } from './Table';
 import { ServerEdit } from './Edit';
-import {
-	IServerInstanceModel,
-	IServerKillParamModel,
-	IServerModel,
-} from '../../infrastructure/interfaces/IServer';
+import { IServerInstanceModel, IServerKillParamModel, IServerModel } from '../../infrastructure/interfaces/IServer';
 import { IPage } from '../../infrastructure/interfaces/ITable';
 import { ServerInstance } from './Instance';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
-
-import './Index.css';
 import { PageContainer } from '@ant-design/pro-layout';
+import './Index.css';
 
 const { confirm } = Modal;
 
@@ -24,7 +19,7 @@ export interface IServerProps {
 	onEnabledAsync: (id: string) => void;
 	onDelAsync: (id: string) => void;
 	onInitAsync: (page: IPage) => void;
-	onInitInstanceAsync: (page: IServerModel) => void;
+	onInitInstanceAsync: (id: string) => void;
 	onKillAsync: (param: IServerKillParamModel) => void;
 	onPingAsync: (address: string) => void;
 	onClearAsync: () => void;
@@ -46,6 +41,7 @@ export default function Server(props: IServerProps) {
 		onPingAsync,
 		onKillAsync,
 		onClearAsync,
+		onInitInstanceAsync,
 		data,
 		total,
 		instanceTotal,
@@ -64,6 +60,7 @@ export default function Server(props: IServerProps) {
 	};
 
 	const handlerShowInstance = (model: IServerModel) => {
+		onInitInstanceAsync(model.name);
 		setShowInstance(true);
 	};
 	const handlerHideInstance = () => {
@@ -100,16 +97,10 @@ export default function Server(props: IServerProps) {
 					onAdd={() => handlerShowEdit()}
 					total={total}
 				/>
-				<ServerEdit
-					show={showEdit}
-					onAdd={(model) => onAddAsync(model)}
-					onEdit={(model) => {}}
-					onCancel={() => handlerHideEdit()}
-				/>
+				<ServerEdit show={showEdit} onAdd={(model) => onAddAsync(model)} onEdit={(model) => {}} onCancel={() => handlerHideEdit()} />
 				<ServerInstance
 					onKill={(address) => onKillAsync(address)}
 					onPing={(address) => onPingAsync(address)}
-					onInit={() => {}}
 					data={instanceData}
 					total={instanceTotal}
 					show={showInstance}

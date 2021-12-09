@@ -5,10 +5,15 @@ export interface IServerSelectModel {
 	id: string;
 }
 
+export interface IServerDenpedCodeModel {
+	id: string;
+	code: string;
+}
+
 export interface IServerCodeModel {
 	id: string;
 	code: string;
-	depends: LabeledValue[];
+	depends: string[];
 	name: string;
 }
 
@@ -16,6 +21,7 @@ export interface IServerDependModel {
 	id: string;
 	depend: string;
 	sort: number;
+	code: string;
 }
 
 export interface ICodeEditorState {
@@ -24,7 +30,14 @@ export interface ICodeEditorState {
 	editing: boolean;
 	id: string;
 	depends: string[];
+	dependCodes: IServerDenpedCodeModel[];
 	oriDepends: string[];
 	code: string;
 	oriCode: string;
+}
+
+export interface IServerSelectItemModel {
+	label: string;
+	value: string;
+	code: string;
 }

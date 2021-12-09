@@ -1,11 +1,6 @@
 import React, { useState } from 'react';
 import { Button, Dropdown, Menu, Modal, Space, Tag } from 'antd';
-import {
-	DownOutlined,
-	ExclamationCircleOutlined,
-	PlusOutlined,
-	ClearOutlined,
-} from '@ant-design/icons';
+import { DownOutlined, ExclamationCircleOutlined, PlusOutlined, ClearOutlined } from '@ant-design/icons';
 import MenuItem from 'antd/lib/menu/MenuItem';
 
 import { IServerModel } from '../../infrastructure/interfaces/IServer';
@@ -51,16 +46,9 @@ const action = (props: IServerTableProps, record: IServerModel) => {
 							</MenuItem>
 							<MenuItem
 								key="disbaled"
-								onClick={() =>
-									record.status === ServerStatusEnum.enabled
-										? onDisbaled(record.id)
-										: onEnabled(record.id)
-								}
+								onClick={() => (record.status === ServerStatusEnum.enabled ? onDisbaled(record.id) : onEnabled(record.id))}
 							>
 								{record.status === ServerStatusEnum.enabled ? '禁用' : '启用'}
-							</MenuItem>
-							<MenuItem key="edit_code" onClick={() => {}}>
-								代码
 							</MenuItem>
 							<Menu.Divider></Menu.Divider>
 							<MenuItem
@@ -180,12 +168,7 @@ export function ServerTable(props: IServerTableProps) {
 							disbaled: { text: '禁用', status: 'disbaled' },
 							enabled: { text: '启用', status: 'enabled' },
 						},
-						render: (_, record) =>
-							record.status === ServerStatusEnum.disbaled ? (
-								<Tag color="red">禁用</Tag>
-							) : (
-								<Tag color="green">启用</Tag>
-							),
+						render: (_, record) => (record.status === ServerStatusEnum.disbaled ? <Tag color="red">禁用</Tag> : <Tag color="green">启用</Tag>),
 					},
 					{
 						key: 'updated_date',

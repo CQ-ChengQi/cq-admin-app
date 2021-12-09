@@ -18,8 +18,7 @@ export interface IServerKillParamModel {
 
 export interface IServerInstanceModel {
 	address: string;
-	server_name: string;
-	server_id: string;
+	name: string;
 	type: ServerInstanceType;
 	created_date: string;
 }

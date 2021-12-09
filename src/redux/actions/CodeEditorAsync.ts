@@ -6,8 +6,8 @@ import { IServerCodeModel, IServerDependModel, IServerSelectModel } from '../../
 import { message } from 'antd';
 
 export const loadCodeAsync = (id: string) => (dispatch: Dispatch) => {
-	post<string>('/api/server/load_code', { id }).then((res) => {
-		dispatch(actions.loadCode(id, res));
+	post<IActionResult<string>>('/api/server/load_code', { id }).then((res) => {
+		dispatch(actions.loadCode(id, res.data));
 	});
 };
 

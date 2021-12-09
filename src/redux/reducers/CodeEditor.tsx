@@ -1,5 +1,4 @@
-import { LabeledValue } from 'antd/lib/select';
-import { ICodeEditorState, IServerDependModel } from '../../infrastructure/interfaces/ICodeEditor';
+import { ICodeEditorState, IServerDenpedCodeModel, IServerDependModel, IServerSelectItemModel } from '../../infrastructure/interfaces/ICodeEditor';
 import * as types from '../../redux/constants/CodeEditorActionTypes';
 import { hashCode } from '../../infrastructure/common/Hash';
 
@@ -11,6 +10,7 @@ const codeeditor = (
 		id: '',
 		depends: [],
 		oriDepends: [],
+		dependCodes: [],
 		code: '',
 		oriCode: '',
 	},
@@ -33,18 +33,21 @@ const codeeditor = (
 
 		case types.LOAD_DEPENDS_CODEEDITOR:
 			let ids: string[] = [];
+			let dependCodes: IServerDenpedCodeModel[] = [];
 			(action.payload.lst as IServerDependModel[]).forEach((item) => {
 				ids.push(item.depend);
+				dependCodes.push({ code: item.code, id: item.depend });
 			});
 			return {
 				...state,
 				depends: ids,
 				oriDepends: ids,
+				dependCodes,
 			};
 		case types.LOAD_SERVER_CODEEDITOR:
-			let result: LabeledValue[] = [];
+			let result: IServerSelectItemModel[] = [];
 			action.payload.servers.forEach((item: any) => {
-				result.push({ label: item.name, value: item.id });
+				result.push({ label: item.name, value: item.id, code: item.code });
 			});
 
 			return {

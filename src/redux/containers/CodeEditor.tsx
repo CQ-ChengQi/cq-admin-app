@@ -14,6 +14,7 @@ const mapStateToProps = (state: any) => {
 		depends: state.codeeditor.depends,
 		editing: state.codeeditor.editing,
 		id: state.codeeditor.id,
+		dependCodes: state.codeeditor.dependCodes,
 	};
 };
 

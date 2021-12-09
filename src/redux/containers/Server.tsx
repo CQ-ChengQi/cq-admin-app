@@ -37,8 +37,8 @@ const mapDispatchToProps = (dispatch: ThunkDispatch<{}, {}, any>) => ({
 	onDisbaledAsync: async (state: string) => {
 		dispatch(actions.disbaledAsync(state));
 	},
-	onInitInstanceAsync: async (page: IServerModel) => {
-		dispatch(actions.initInstanceAsync(page));
+	onInitInstanceAsync: async (name: string) => {
+		dispatch(actions.initInstanceAsync(name));
 	},
 	onKillAsync: async (param: IServerKillParamModel) => {
 		dispatch(actions.killAsync(param));

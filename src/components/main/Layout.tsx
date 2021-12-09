@@ -11,6 +11,8 @@ import ServerCodeEditor from '../../redux/containers/CodeEditor';
 
 export interface ILayoutProps {
 	onCollapsed: (collapsed: boolean) => void;
+	onSelectMenu: (menu: string) => void;
+	menu: string;
 }
 
 export function Layout(props: ILayoutProps) {
@@ -20,9 +22,9 @@ export function Layout(props: ILayoutProps) {
 		navTheme: 'light',
 		fixedHeader: true,
 	});
-	const [pathname, setPathname] = useState('/welcome');
 
-	const { onCollapsed } = props;
+	const { onCollapsed, onSelectMenu } = props;
+	const [pathname, setPathname] = useState(window.location.pathname);
 
 	return (
 		<ProLayout
@@ -69,6 +71,7 @@ export function Layout(props: ILayoutProps) {
 						onClick={() => {
 							const to = item.path || '/';
 							setPathname(to);
+							onSelectMenu(to);
 						}}
 					>
 						{dom}

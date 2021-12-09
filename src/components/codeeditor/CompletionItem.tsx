@@ -1,115 +1,183 @@
 /* eslint-disable no-template-curly-in-string */
 import { IRange } from 'monaco-editor';
 import { monaco } from 'react-monaco-editor';
+import * as regs from './RegExp';
 
+let dependCodes: string[] = [];
 let supplement: string[] = [];
+let code: string = '';
+
+export interface IFuncNameDescModel {
+	code: string;
+	des: string;
+}
+
+export const setSuggestionCode = (s: string): void => {
+	code = s;
+};
 
 export const removeSuggestion = (name: string): void => {
 	let index = supplement.findIndex((item) => item === name);
-	if (index >= 0) supplement.splice(index, 1);
+	if (index >= 0) {
+		supplement.splice(index, 1);
+		dependCodes.splice(index, 1);
+	}
 };
 
-export const addSuggestion = (name: string): void => {
+export const addSuggestion = (name: string, code: string): void => {
 	let index = supplement.findIndex((item) => item === name);
-	if (index < 0) supplement.push(name);
+	if (index < 0) {
+		supplement.push(name);
+		dependCodes.push(code);
+	}
+};
+
+export const getMatchString = (str: string, matcher: { [Symbol.match](string: string): RegExpMatchArray | null }, index: number, defaultVal: string = '') => {
+	let match = str.match(matcher);
+	let group_index: number = 0;
+	let result: string = defaultVal;
+	match?.forEach((item) => {
+		if (group_index === index) result = item;
+		group_index++;
+	});
+	return result;
+};
+
+export const getMatchCodeDesList = (str: string, matcher: RegExp) => {
+	let regArray: RegExpExecArray | null;
+	let result: IFuncNameDescModel[] = [];
+	while ((regArray = matcher.exec(str))) {
+		let model: IFuncNameDescModel = {
+			code: '',
+			des: '',
+		};
+		regArray?.forEach((item, index) => {
+			if (index === 3) model.code = item;
+			if (index === 2) model.des = item;
+		});
+		result.push(model);
+	}
+	return result;
+};
+
+export const getMatchStringList = (str: string, matcher: RegExp) => {
+	let regArray: RegExpExecArray | null;
+	let result: string[] = [];
+	while ((regArray = matcher.exec(str))) {
+		regArray?.forEach((item, index) => {
+			if (index > 0) result.push(item);
+		});
+	}
+	return result;
 };
 
 export const suggestions = (range: IRange): monaco.languages.CompletionItem[] => {
+	// 取 skynet 导入模块 。
+	let skynet: string = getMatchString(code, regs.skynet, 1, 'skynet');
+	let cmd: string = getMatchString(code, regs.cmd, 3);
+	let command: string = getMatchString(code, regs.command(cmd), 1);
+
 	let suggestions: monaco.languages.CompletionItem[] = [
 		{
-			label: 'skynet.getenv',
+			label: command,
 			kind: monaco.languages.CompletionItemKind.Function,
-			insertText: ['local ${1:name} = skynet.getenv("${2:env_name}")'].join('\n'),
+			insertText: ['function ' + command + '.${1:name}(${2:param})', '\t', 'end'].join('\n'),
+			insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+			range: range,
+			detail: '消息分发函数',
+		},
+		{
+			label: skynet + '.getenv',
+			kind: monaco.languages.CompletionItemKind.Function,
+			insertText: ['local ${1:name} = ' + skynet + '.getenv("${2:env_name}")'].join('\n'),
 			insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
 			range: range,
 			detail: '获取环境变量',
 		},
 		{
-			label: 'skynet.setenv',
+			label: skynet + '.setenv',
 			kind: monaco.languages.CompletionItemKind.Function,
-			insertText: ['skynet.setenv("${1:name}", ${2:value})'].join('\n'),
+			insertText: [skynet + '.setenv("${1:name}", ${2:value})'].join('\n'),
 			insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
 			range: range,
 			detail: '设置环境变量',
 		},
 		{
-			label: 'skynet.newservice',
+			label: skynet + '.newservice',
 			kind: monaco.languages.CompletionItemKind.Function,
-			insertText: ['local ${1:address} = skynet.newservice("${2:name}")'].join('\n'),
+			insertText: ['local ${1:address} = ' + skynet + '.newservice("${2:name}")'].join('\n'),
 			insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
 			range: range,
 			detail: '启动一个新服务并返回地址',
 		},
 		{
-			label: 'skynet.uniqueservice',
+			label: skynet + '.uniqueservice',
 			kind: monaco.languages.CompletionItemKind.Function,
-			insertText: ['local ${1:address} = skynet.uniqueservice("${2:name}")'].join('\n'),
+			insertText: ['local ${1:address} = ' + skynet + '.uniqueservice("${2:name}")'].join('\n'),
 			insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
 			range: range,
 			detail: '启动一个唯一服务，如果服务该服务已经启动，则返回已启动的服务地址',
 		},
 		{
-			label: 'skynet.queryservice',
+			label: skynet + '.queryservice',
 			kind: monaco.languages.CompletionItemKind.Function,
-			insertText: ['local ${1:address} = skynet.queryservice("${2:name}")'].join('\n'),
+			insertText: ['local ${1:address} = ' + skynet + '.queryservice("${2:name}")'].join('\n'),
 			insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
 			range: range,
 			detail: '查询一个由 uniqueservice 启动的唯一服务的地址，若该服务尚未启动则等待',
 		},
 		{
-			label: 'skynet.localname',
+			label: skynet + '.localname',
 			kind: monaco.languages.CompletionItemKind.Function,
-			insertText: ['local ${1:address} = skynet.localname("${2:name}")'].join('\n'),
+			insertText: ['local ${1:address} = ' + skynet + '.localname("${2:name}")'].join('\n'),
 			insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
 			range: range,
 			detail: '返回同一进程内，用 register 注册的具名服务的地址',
 		},
 		{
-			label: 'skynet.address',
+			label: skynet + '.address',
 			kind: monaco.languages.CompletionItemKind.Function,
-			insertText: ['local ${1:name} = skynet.address(${2:address})'].join('\n'),
+			insertText: ['local ${1:name} = ' + skynet + '.address(${2:address})'].join('\n'),
 			insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
 			range: range,
 			detail: '将一个服务地址转换为一个可供显示的字符串',
 		},
 		{
-			label: 'skynet.exit',
+			label: skynet + '.exit',
 			kind: monaco.languages.CompletionItemKind.Function,
-			insertText: ['skynet.exit()'].join('\n'),
+			insertText: [skynet + '.exit()'].join('\n'),
 			insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
 			range: range,
 			detail: '结束当前服务',
 		},
 		{
-			label: 'skynet.self',
+			label: skynet + '.self',
 			kind: monaco.languages.CompletionItemKind.Function,
-			insertText: ['local ${1:address} = skynet.self()'].join('\n'),
+			insertText: ['local ${1:address} = ' + skynet + '.self()'].join('\n'),
 			insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
 			range: range,
 			detail: '返回当前服务的地址',
 		},
 		{
-			label: 'skynet.start',
+			label: skynet + '.start',
 			kind: monaco.languages.CompletionItemKind.Function,
-			insertText: ['skynet.start(function()', '\t${1:--todo}', 'end)'].join('\n'),
+			insertText: [skynet + '.start(function()', '\t${1:--todo}', 'end)'].join('\n'),
 			insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
 			range: range,
 			detail: '启动服务入口',
 		},
 		{
-			label: 'skynet.start dispatch',
+			label: skynet + '.start dispatch',
 			kind: monaco.languages.CompletionItemKind.Function,
 			insertText: [
 				'local ${1:command} = {}',
 				'',
 				'',
-				'${3:function}',
 				'',
-				'',
-				'skynet.start(function()',
-				'\tskynet.dispatch("lua", function(session, source, cmd, ...)',
+				skynet + '.start(function()',
+				'\t' + skynet + '.dispatch("lua", function(session, source, cmd, ...)',
 				'\t\tlocal f = assert(${2:command}[cmd], cmd .. "not found")',
-				'\t\tskynet.retpack(f(...))',
+				'\t\t' + skynet + '.retpack(f(...))',
 				'\tend)',
 				'end)',
 			].join('\n'),
@@ -118,44 +186,44 @@ export const suggestions = (range: IRange): monaco.languages.CompletionItem[] =>
 			detail: '启动服务入口与消息接收',
 		},
 		{
-			label: 'skynet.call',
+			label: skynet + '.call',
 			kind: monaco.languages.CompletionItemKind.Function,
-			insertText: 'skynet.call("${1:address}", "lua", "${2:func}")',
+			insertText: skynet + '.call("${1:address}", "lua", "${2:func}")',
 			insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
 			range: range,
 			detail: '服务通信，存在返回值',
 		},
 		{
-			label: 'skynet.call param',
+			label: skynet + '.call param',
 			kind: monaco.languages.CompletionItemKind.Function,
-			insertText: 'skynet.call("${1:address}", "lua", "${2:func}", "${3:param}")',
+			insertText: skynet + '.call("${1:address}", "lua", "${2:func}", "${3:param}")',
 			insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
 			range: range,
 			detail: '服务通信，存在返回值（参数）',
 		},
 		{
-			label: 'skynet.send',
+			label: skynet + '.send',
 			kind: monaco.languages.CompletionItemKind.Function,
-			insertText: 'skynet.send("${1:address}", "lua", "${2:func}")',
+			insertText: skynet + '.send("${1:address}", "lua", "${2:func}")',
 			insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
 			range: range,
 			detail: '服务通信，无返回值',
 		},
 		{
-			label: 'skynet.send param',
+			label: skynet + '.send param',
 			kind: monaco.languages.CompletionItemKind.Function,
-			insertText: 'skynet.send("${1:address}", "lua", "${2:func}", "${3:param}")',
+			insertText: skynet + '.send("${1:address}", "lua", "${2:func}", "${3:param}")',
 			insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
 			range: range,
 			detail: '服务通信，无返回值（参数）',
 		},
 		{
-			label: 'skynet.dispatch',
+			label: skynet + '.dispatch',
 			kind: monaco.languages.CompletionItemKind.Function,
 			insertText: [
-				'skynet.dispatch("lua", function(session, source, cmd, ...)',
+				skynet + '.dispatch("lua", function(session, source, cmd, ...)',
 				'\tlocal f = assert(${1:command}[cmd], cmd .. "not found")',
-				'\tskynet.retpack(f(...))',
+				'\t' + skynet + '.retpack(f(...))',
 				'end)',
 			].join('\n'),
 			insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
@@ -163,9 +231,9 @@ export const suggestions = (range: IRange): monaco.languages.CompletionItem[] =>
 			detail: '服务通信，无返回值',
 		},
 		{
-			label: 'skynet.error',
+			label: skynet + '.error',
 			kind: monaco.languages.CompletionItemKind.Function,
-			insertText: ['skynet.error("${1:message}")'].join('\n'),
+			insertText: [skynet + '.error("${1:message}")'].join('\n'),
 			insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
 			range: range,
 			detail: '打印日志',
@@ -291,6 +359,14 @@ export const suggestions = (range: IRange): monaco.languages.CompletionItem[] =>
 			detail: '类型',
 		},
 		{
+			label: 'return',
+			kind: monaco.languages.CompletionItemKind.Field,
+			insertText: ['return ${1:obj}'].join('\n'),
+			insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+			range: range,
+			detail: '返回',
+		},
+		{
 			label: 'repeat',
 			kind: monaco.languages.CompletionItemKind.Function,
 			insertText: ['local ${1:name} = ${2:value}', 'repeat', '\t${4:--body}', '\t${1:name} = ${1:name} + 1', 'until(${1:name} > ${3:value})'].join('\n'),
@@ -324,71 +400,38 @@ export const suggestions = (range: IRange): monaco.languages.CompletionItem[] =>
 		},
 	];
 
-	supplement.forEach((item) => {
-		suggestions.push({
-			label: 'call ' + item + ' 1',
-			kind: monaco.languages.CompletionItemKind.Function,
-			insertText: ['local ${1:name} = call_' + item + '("${2:func_name}", "${3:param_name}")'].join('\n'),
-			insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-			range: range,
-			detail: '依赖服务 1 个参数',
-		});
-		suggestions.push({
-			label: 'call ' + item + ' 2',
-			kind: monaco.languages.CompletionItemKind.Function,
-			insertText: ['local ${1:name} = call_' + item + '("${2:func_name}", "${3:param_name}", "${4:param_name}")'].join('\n'),
-			insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-			range: range,
-			detail: '依赖服务 2 个参数',
-		});
-		suggestions.push({
-			label: 'call ' + item + ' 3',
-			kind: monaco.languages.CompletionItemKind.Function,
-			insertText: ['local ${1:name} = call_' + item + '("${2:func_name}", "${3:param_name}", "${4:param_name}", "${5:param_name}")'].join('\n'),
-			insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-			range: range,
-			detail: '依赖服务 3 个参数',
-		});
-		suggestions.push({
-			label: 'call ' + item + ' ...',
-			kind: monaco.languages.CompletionItemKind.Function,
-			insertText: ['local ${1:name} = call_' + item + '("${2:func_name}", ${3:...})'].join('\n'),
-			insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-			range: range,
-			detail: '依赖服务可变参数',
-		});
-		suggestions.push({
-			label: 'send ' + item + ' 1',
-			kind: monaco.languages.CompletionItemKind.Function,
-			insertText: ['send_' + item + '("${2:func_name}", "${3:param_name}")'].join('\n'),
-			insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-			range: range,
-			detail: '依赖服务 1 个参数',
-		});
-		suggestions.push({
-			label: 'send ' + item + ' 2',
-			kind: monaco.languages.CompletionItemKind.Function,
-			insertText: ['send_' + item + '("${2:func_name}", "${3:param_name}", "${4:param_name}")'].join('\n'),
-			insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-			range: range,
-			detail: '依赖服务 2 个参数',
-		});
-		suggestions.push({
-			label: 'send ' + item + ' 3',
-			kind: monaco.languages.CompletionItemKind.Function,
-			insertText: ['send_' + item + '("${2:func_name}", "${3:param_name}", "${4:param_name}", "${5:param_name}")'].join('\n'),
-			insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-			range: range,
-			detail: '依赖服务 3 个参数',
-		});
-		suggestions.push({
-			label: 'send ' + item + ' ...',
-			kind: monaco.languages.CompletionItemKind.Function,
-			insertText: ['send_' + item + '("${2:func_name}", ${3:...})'].join('\n'),
-			insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-			range: range,
-			detail: '依赖服务可变参数',
-		});
+	supplement.forEach((item, index) => {
+		if (!dependCodes[index]) return;
+		let dependCmd: string = getMatchString(dependCodes[index], regs.cmd, 3);
+		let dependCommand: string = getMatchString(dependCodes[index], regs.command(dependCmd), 1);
+		let dependFuncList: IFuncNameDescModel[] = getMatchCodeDesList(dependCodes[index], regs.funcG(dependCommand));
+
+		if (dependFuncList.length > 0) {
+			dependFuncList.forEach((funcName) => {
+				let codeArry: string[] = [];
+				let params = getMatchStringList(funcName.code, regs.paramG);
+				params.forEach((param, i) => {
+					if (i > 0) codeArry.push('${' + i.toString() + ':' + param + '}');
+				});
+				suggestions.push({
+					label: item + ' send ' + funcName.code,
+					kind: monaco.languages.CompletionItemKind.Function,
+					insertText: [item + '_send_' + params[0] + '(' + codeArry.join(', ') + ')'].join('\n'),
+					insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+					range: range,
+					detail: funcName.des,
+				});
+
+				suggestions.push({
+					label: item + ' call ' + funcName.code,
+					kind: monaco.languages.CompletionItemKind.Function,
+					insertText: [item + '_call_' + params[0] + '(' + codeArry.join(', ') + ')'].join('\n'),
+					insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+					range: range,
+					detail: funcName.des,
+				});
+			});
+		}
 	});
 
 	return suggestions;
