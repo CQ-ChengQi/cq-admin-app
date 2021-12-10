@@ -5,9 +5,10 @@ import ProLayout from '@ant-design/pro-layout';
 import { Avatar } from 'antd';
 import { Link, Route, Routes } from 'react-router-dom';
 import Server from '../../redux/containers/Server';
+import ServerCodeEditor from '../../redux/containers/CodeEditor';
+import Instance from '../../redux/containers/Instance';
 
 import './Layout.css';
-import ServerCodeEditor from '../../redux/containers/CodeEditor';
 
 export interface ILayoutProps {
 	onCollapsed: (collapsed: boolean) => void;
@@ -57,6 +58,10 @@ export function Layout(props: ILayoutProps) {
 								path: '/manager/codeeditor',
 								name: '代码编辑',
 							},
+							{
+								path: '/manager/instance',
+								name: '服务实例',
+							},
 						],
 					},
 				],
@@ -90,6 +95,7 @@ export function Layout(props: ILayoutProps) {
 			<Routes>
 				<Route path="/manager/server" element={<Server />} />
 				<Route path="/manager/codeeditor" element={<ServerCodeEditor />} />
+				<Route path="/manager/instance" element={<Instance />} />
 			</Routes>
 		</ProLayout>
 	);

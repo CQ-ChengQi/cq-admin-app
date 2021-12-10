@@ -2,7 +2,7 @@ import { Dispatch } from 'redux';
 import { message } from 'antd';
 import { post } from '../../infrastructure/common/Server';
 import { IActionResult, IPage, IPageResult } from '../../infrastructure/interfaces/ITable';
-import { IServerInstanceModel, IServerKillParamModel, IServerModel } from '../../infrastructure/interfaces/IServer';
+import { IServerModel } from '../../infrastructure/interfaces/IServer';
 import * as actions from './Server';
 
 export const editCodeAsync = (state: IServerModel) => (dispatch: Dispatch) => {
@@ -22,30 +22,6 @@ export const enabledAsync = (id: string) => {
 export const runAsync = (state: IServerModel) => (dispatch: Dispatch) => {
 	post<IActionResult<IServerModel>>('/api/server/run', state).then((res) => {
 		dispatch(actions.run(res.data));
-	});
-};
-
-export const initInstanceAsync = (name: string) => (dispatch: Dispatch) => {
-	post<IPageResult<IServerInstanceModel>>('/api/server/get_instance', { name }).then((res) => {
-		dispatch(actions.initInstance(res));
-	});
-};
-
-export const killAsync = (param: IServerKillParamModel) => (dispatch: Dispatch) => {
-	post<IActionResult<IServerKillParamModel>>('/api/server/kill_instance', param).then((res) => {
-		if (res.success) {
-			dispatch(actions.kill(res.data));
-			message.success(res.message);
-		} else message.error(res.message);
-	});
-};
-
-export const pingAsync = (state: string) => (dispatch: Dispatch) => {
-	post<IActionResult<string>>('/api/server/ping_instance', { address: state }).then((res) => {
-		if (res.success) {
-			dispatch(actions.ping(res.data));
-			message.success(res.data);
-		} else message.error(res.message);
 	});
 };
 

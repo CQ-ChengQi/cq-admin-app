@@ -2,7 +2,7 @@ import { connect } from 'react-redux';
 import { ThunkDispatch } from 'redux-thunk';
 import * as actions from '../actions/ServerAsync';
 import Server from '../../components/server/Index';
-import { IServerKillParamModel, IServerModel } from '../../infrastructure/interfaces/IServer';
+import { IServerModel } from '../../infrastructure/interfaces/IServer';
 import { IPage } from '../../infrastructure/interfaces/ITable';
 
 const mapStateToProps = (state: any) => {
@@ -36,15 +36,6 @@ const mapDispatchToProps = (dispatch: ThunkDispatch<{}, {}, any>) => ({
 	},
 	onDisbaledAsync: async (state: string) => {
 		dispatch(actions.disbaledAsync(state));
-	},
-	onInitInstanceAsync: async (name: string) => {
-		dispatch(actions.initInstanceAsync(name));
-	},
-	onKillAsync: async (param: IServerKillParamModel) => {
-		dispatch(actions.killAsync(param));
-	},
-	onPingAsync: async (address: string) => {
-		dispatch(actions.pingAsync(address));
 	},
 	onClearAsync: async () => {
 		dispatch(actions.clearAsync());

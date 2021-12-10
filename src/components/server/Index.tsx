@@ -2,9 +2,8 @@ import { useState } from 'react';
 import { Modal } from 'antd';
 import { ServerTable } from './Table';
 import { ServerEdit } from './Edit';
-import { IServerInstanceModel, IServerKillParamModel, IServerModel } from '../../infrastructure/interfaces/IServer';
+import { IServerModel } from '../../infrastructure/interfaces/IServer';
 import { IPage } from '../../infrastructure/interfaces/ITable';
-import { ServerInstance } from './Instance';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-layout';
 import './Index.css';
@@ -19,37 +18,16 @@ export interface IServerProps {
 	onEnabledAsync: (id: string) => void;
 	onDelAsync: (id: string) => void;
 	onInitAsync: (page: IPage) => void;
-	onInitInstanceAsync: (id: string) => void;
-	onKillAsync: (param: IServerKillParamModel) => void;
-	onPingAsync: (address: string) => void;
 	onClearAsync: () => void;
 	data: IServerModel[];
 	total: number;
-	instanceData?: IServerInstanceModel[];
-	instanceTotal?: number;
 	siderbarWidth: number;
 }
 
 export default function Server(props: IServerProps) {
-	const {
-		onAddAsync,
-		onInitAsync,
-		onRunAsync,
-		onDisbaledAsync,
-		onEnabledAsync,
-		onDelAsync,
-		onPingAsync,
-		onKillAsync,
-		onClearAsync,
-		onInitInstanceAsync,
-		data,
-		total,
-		instanceTotal,
-		instanceData,
-	} = props;
+	const { onAddAsync, onInitAsync, onRunAsync, onDisbaledAsync, onEnabledAsync, onDelAsync, onClearAsync, data, total } = props;
 
 	const [showEdit, setShowEdit] = useState(false);
-	const [showInstance, setShowInstance] = useState(false);
 
 	const handlerHideEdit = () => {
 		setShowEdit(false);
@@ -57,14 +35,6 @@ export default function Server(props: IServerProps) {
 
 	const handlerShowEdit = (model?: IServerModel) => {
 		setShowEdit(true);
-	};
-
-	const handlerShowInstance = (model: IServerModel) => {
-		onInitInstanceAsync(model.name);
-		setShowInstance(true);
-	};
-	const handlerHideInstance = () => {
-		setShowInstance(false);
 	};
 
 	const handlerClear = () => {
@@ -90,7 +60,6 @@ export default function Server(props: IServerProps) {
 					onDisbaled={onDisbaledAsync}
 					onEnabled={onEnabledAsync}
 					onRun={onRunAsync}
-					onInstance={(model) => handlerShowInstance(model)}
 					data={data}
 					onInit={onInitAsync}
 					onClear={() => handlerClear()}
@@ -98,14 +67,6 @@ export default function Server(props: IServerProps) {
 					total={total}
 				/>
 				<ServerEdit show={showEdit} onAdd={(model) => onAddAsync(model)} onEdit={(model) => {}} onCancel={() => handlerHideEdit()} />
-				<ServerInstance
-					onKill={(address) => onKillAsync(address)}
-					onPing={(address) => onPingAsync(address)}
-					data={instanceData}
-					total={instanceTotal}
-					show={showInstance}
-					onCancel={() => handlerHideInstance()}
-				/>
 			</PageContainer>
 		</>
 	);

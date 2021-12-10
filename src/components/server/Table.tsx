@@ -16,7 +16,6 @@ export interface IServerTableProps {
 	onEnabled: (id: string) => void;
 	onDel: (id: string) => void;
 	onInit: (page: IPage) => void;
-	onInstance: (model: IServerModel) => void;
 	onClear: () => void;
 	data: IServerModel[];
 	total: number;
@@ -27,15 +26,12 @@ export interface IServerTableProps {
  */
 const action = (props: IServerTableProps, record: IServerModel) => {
 	const { confirm } = Modal;
-	const { onEdit, onRun, onDisbaled, onEnabled, onDel, onInstance } = props;
+	const { onEdit, onRun, onDisbaled, onEnabled, onDel } = props;
 	return (
 		<>
 			<Space size="middle">
 				<Button type="primary" size="small" onClick={() => onEdit(record)}>
 					编辑
-				</Button>
-				<Button type="primary" size="small" onClick={() => onInstance(record)}>
-					实例
 				</Button>
 				<Dropdown
 					trigger={['click']}

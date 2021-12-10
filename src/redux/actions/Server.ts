@@ -1,10 +1,5 @@
 import * as types from '../constants/ServerActionTypes';
-import {
-	IServerAction,
-	IServerInstanceModel,
-	IServerKillParamModel,
-	IServerModel,
-} from '../../infrastructure/interfaces/IServer';
+import { IServerAction, IServerModel } from '../../infrastructure/interfaces/IServer';
 import { IPageResult } from '../../infrastructure/interfaces/ITable';
 
 export const add = (state: IServerModel): IServerAction<IServerModel> => ({
@@ -37,9 +32,7 @@ export const enabled = (state: string): IServerAction<string> => ({
 	state,
 });
 
-export const init = (
-	state: IPageResult<IServerModel>,
-): IServerAction<IPageResult<IServerModel>> => ({
+export const init = (state: IPageResult<IServerModel>): IServerAction<IPageResult<IServerModel>> => ({
 	type: types.INIT_SERVER,
 	state,
 });
@@ -54,24 +47,7 @@ export const run = (state: IServerModel): IServerAction<IServerModel> => ({
 	state,
 });
 
-export const kill = (param: IServerKillParamModel): IServerAction<IServerKillParamModel> => ({
-	type: types.KILL_SERVER_INSTANCE,
-	state: param,
-});
-
-export const ping = (state: string): IServerAction<string> => ({
-	type: types.PING_SERVER_INSTANCE,
-	state,
-});
-
 export const clear = (): IServerAction<string> => ({
 	type: types.CLEAR_SERVER_CODE_CACHE,
 	state: '',
-});
-
-export const initInstance = (
-	state: IPageResult<IServerInstanceModel>,
-): IServerAction<IPageResult<IServerInstanceModel>> => ({
-	type: types.INIT_SERVER_INSTANCE,
-	state,
 });

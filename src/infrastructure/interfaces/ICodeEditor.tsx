@@ -1,10 +1,5 @@
 import { LabeledValue } from 'antd/lib/select';
 
-export interface IServerSelectModel {
-	name: string;
-	id: string;
-}
-
 export interface IServerDenpedCodeModel {
 	id: string;
 	code: string;
@@ -40,4 +35,9 @@ export interface IServerSelectItemModel {
 	label: string;
 	value: string;
 	code: string;
+}
+
+export interface IServerSelectModel {
+	name: string;
+	id: string;
 }
