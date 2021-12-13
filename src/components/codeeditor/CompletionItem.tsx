@@ -239,6 +239,110 @@ export const suggestions = (range: IRange): monaco.languages.CompletionItem[] =>
 			detail: '打印日志',
 		},
 		{
+			label: skynet + '.sleep',
+			kind: monaco.languages.CompletionItemKind.Function,
+			insertText: [skynet + '.sleep("${1:time}")'].join('\n'),
+			insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+			range: range,
+			detail: '让当前的任务等待 time * 0.01s ',
+		},
+		{
+			label: skynet + '.yield',
+			kind: monaco.languages.CompletionItemKind.Function,
+			insertText: [skynet + '.yield()'].join('\n'),
+			insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+			range: range,
+			detail: '让出当前的任务执行流程，使本服务内其它任务有机会执行，随后会继续运行',
+		},
+		{
+			label: skynet + '.wait',
+			kind: monaco.languages.CompletionItemKind.Function,
+			insertText: [skynet + '.wait()'].join('\n'),
+			insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+			range: range,
+			detail: '让出当前的任务执行流程，直到用 wakeup 唤醒它',
+		},
+		{
+			label: skynet + '.wakeup',
+			kind: monaco.languages.CompletionItemKind.Function,
+			insertText: [skynet + '.wakeup(${1:co})'].join('\n'),
+			insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+			range: range,
+			detail: '唤醒用 wait 或 sleep 处于等待状态的任务',
+		},
+		{
+			label: skynet + '.fork',
+			kind: monaco.languages.CompletionItemKind.Function,
+			insertText: ['local ${1:co} = ' + skynet + '.fork(${2:func}, ...)'].join('\n'),
+			insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+			range: range,
+			detail: '启动一个新的任务去执行函数 func ',
+		},
+		{
+			label: skynet + '.genid',
+			kind: monaco.languages.CompletionItemKind.Function,
+			insertText: ['local ${1:id} = ' + skynet + '.genid()'].join('\n'),
+			insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+			range: range,
+			detail: '生成唯一 session',
+		},
+		{
+			label: skynet + '.dispatch_message',
+			kind: monaco.languages.CompletionItemKind.Function,
+			insertText: [skynet + '.dispatch_message(${1:typeid}, ${2:msg}, ${3:sz}, ${4:session}, ${5:source})'].join('\n'),
+			insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+			range: range,
+			detail: '默认的消息处理过程，由 C 层传递给它消息的五元组：消息类型 id 、指针、长度、session 号、消息源地址',
+		},
+		{
+			label: skynet + '.pcall',
+			kind: monaco.languages.CompletionItemKind.Function,
+			insertText: [skynet + '.pcall(${1:func}, ...)'].join('\n'),
+			insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+			range: range,
+			detail: '执行一个函数，捕获可能抛出的异常，并保证在此之前运行由 init 注册的初始化过程',
+		},
+		{
+			label: skynet + '.init_service',
+			kind: monaco.languages.CompletionItemKind.Function,
+			insertText: [skynet + '.init_service(${1:func})'].join('\n'),
+			insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+			range: range,
+			detail: '用 func 函数初始化服务',
+		},
+		{
+			label: skynet + '.endless',
+			kind: monaco.languages.CompletionItemKind.Function,
+			insertText: [skynet + '.endless()'].join('\n'),
+			insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+			range: range,
+			detail: '查询当前服务的当前任务是否处于长期占用 cpu 的状态',
+		},
+		{
+			label: skynet + '.mqlen',
+			kind: monaco.languages.CompletionItemKind.Function,
+			insertText: [skynet + '.mqlen()'].join('\n'),
+			insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+			range: range,
+			detail: '查询当前服务有多少尚未处理的消息',
+		},
+		{
+			label: skynet + '.task(result)',
+			kind: monaco.languages.CompletionItemKind.Function,
+			insertText: [skynet + '.task(${1:result})'].join('\n'),
+			insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+			range: range,
+			detail: '返回当前服务尚未处理完成的任务调用堆栈信息',
+		},
+		{
+			label: skynet + '.task',
+			kind: monaco.languages.CompletionItemKind.Function,
+			insertText: [skynet + '.task()'].join('\n'),
+			insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+			range: range,
+			detail: '返回尚未处理完成的任务的个数',
+		},
+		{
 			label: 'local',
 			kind: monaco.languages.CompletionItemKind.Variable,
 			insertText: 'local ${1:name} = ${2:value}',
@@ -432,6 +536,18 @@ export const suggestions = (range: IRange): monaco.languages.CompletionItem[] =>
 				});
 			});
 		}
+	});
+
+	let varList: string[] = getMatchStringList(code, regs.variableG);
+	varList.forEach((item) => {
+		suggestions.push({
+			label: item,
+			kind: monaco.languages.CompletionItemKind.Variable,
+			insertText: [item].join('\n'),
+			insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+			range: range,
+			detail: '',
+		});
 	});
 
 	return suggestions;

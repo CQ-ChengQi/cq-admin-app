@@ -33,13 +33,13 @@ const action = (props: IServerTableProps, record: IServerModel) => {
 				<Button type="primary" size="small" onClick={() => onEdit(record)}>
 					编辑
 				</Button>
+				<Button type="primary" size="small" onClick={() => onRun(record)}>
+					运行
+				</Button>
 				<Dropdown
 					trigger={['click']}
 					overlay={
 						<Menu>
-							<MenuItem key="run" onClick={() => onRun(record)}>
-								运行
-							</MenuItem>
 							<MenuItem
 								key="disbaled"
 								onClick={() => (record.status === ServerStatusEnum.enabled ? onDisbaled(record.id) : onEnabled(record.id))}

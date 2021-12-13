@@ -11,6 +11,8 @@ import Checkbox from 'antd/lib/checkbox/Checkbox';
 import { Tooltip } from 'antd';
 
 import './Index.css';
+import { CancellationToken, editor } from 'monaco-editor';
+import { languages } from 'monaco-editor/esm/vs/editor/editor.api';
 
 export interface ICodeEditorProps {
 	id: string;
@@ -74,7 +76,6 @@ export function CodeEditor(props: ICodeEditorProps) {
 
 	useEffect(() => {
 		serverSelectData.forEach((item) => {
-			console.log(item);
 			if (depends.findIndex((s) => s === item.value) >= 0) {
 				addSuggestion(item.label, item.code);
 			} else {
@@ -97,6 +98,23 @@ export function CodeEditor(props: ICodeEditorProps) {
 				return {
 					suggestions: suggestions(range),
 				};
+			},
+		});
+
+		monaco.languages.registerDocumentFormattingEditProvider('lua', {
+			provideDocumentFormattingEdits: (model: editor.ITextModel, options: languages.FormattingOptions, token: CancellationToken) => {
+				console.log(model);
+				return [
+					{
+						range: {
+							startLineNumber: 0,
+							startColumn: 0,
+							endLineNumber: 0,
+							endColumn: 0,
+						},
+						text: '',
+					},
+				];
 			},
 		});
 
