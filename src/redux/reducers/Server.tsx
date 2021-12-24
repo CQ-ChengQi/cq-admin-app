@@ -1,21 +1,24 @@
 import * as types from '../constants/ServerActionTypes';
 import { ServerStatusEnum } from '../../infrastructure/enums/Server';
-import { IServerAction, IServerModel, IServerState } from '../../infrastructure/interfaces/IServer';
+import { IServerAction, IServerFolderModel, IServerModel, IServerState } from '../../infrastructure/interfaces/IServer';
 import { IPageResult } from '../../infrastructure/interfaces/ITable';
 
 const server = (
 	state: IServerState = {
 		total: 0,
 		data: [],
+		folderData: [],
 	},
-	action: IServerAction<IServerModel> | IServerAction<string> | IServerAction<IPageResult<IServerModel>>,
+	action: IServerAction<IServerModel> | IServerAction<string> | IServerAction<IPageResult<IServerModel>> | IServerAction<IPageResult<IServerFolderModel>>,
 ): IServerState => {
+	console.log(action.type);
 	switch (action.type) {
 		case types.INIT_SERVER:
 			const pageResult = action as IServerAction<IPageResult<IServerModel>>;
 			return {
 				total: pageResult.state.total,
 				data: [...pageResult.state.data],
+				folderData: [],
 			};
 
 		case types.ADD_SERVER:
@@ -54,6 +57,10 @@ const server = (
 			const editCodeAction = action as IServerAction<IServerModel>;
 			const editCodeData = state.data.map((server) => (server.id === editCodeAction.state.id ? { ...server, code: editCodeAction.state.code } : server));
 			return { ...state, data: editCodeData };
+		case types.LOAD_SERVER_FOLDER:
+			const folderAction = action as IServerAction<IPageResult<IServerFolderModel>>;
+			console.log(folderAction);
+			return { ...state, folderData: folderAction.state.data };
 		default:
 			return state;
 	}

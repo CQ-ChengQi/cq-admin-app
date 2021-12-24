@@ -1,5 +1,5 @@
 import * as types from '../constants/ServerActionTypes';
-import { IServerAction, IServerModel } from '../../infrastructure/interfaces/IServer';
+import { IServerAction, IServerFolderModel, IServerModel } from '../../infrastructure/interfaces/IServer';
 import { IPageResult } from '../../infrastructure/interfaces/ITable';
 
 export const add = (state: IServerModel): IServerAction<IServerModel> => ({
@@ -50,4 +50,9 @@ export const run = (state: IServerModel): IServerAction<IServerModel> => ({
 export const clear = (): IServerAction<string> => ({
 	type: types.CLEAR_SERVER_CODE_CACHE,
 	state: '',
+});
+
+export const loadServerFolder = (state: IPageResult<IServerFolderModel>): IServerAction<IPageResult<IServerFolderModel>> => ({
+	type: types.LOAD_SERVER_FOLDER,
+	state,
 });

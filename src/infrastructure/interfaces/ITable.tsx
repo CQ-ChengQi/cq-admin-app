@@ -1,15 +1,6 @@
-export interface IPageFilter {}
-export interface IPageSorter {
-	key: string;
-	value: string;
-	order: number;
-}
-
 export interface IPage {
-	page: number;
-	pagesize: number;
-	filters?: IPageFilter;
-	sorters?: IPageSorter[];
+	filters?: any;
+	sorters?: any;
 }
 
 export interface IPageResult<T> {

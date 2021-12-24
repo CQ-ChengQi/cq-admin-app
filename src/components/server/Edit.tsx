@@ -1,108 +1,110 @@
-import React, { RefObject } from 'react';
-import { Modal, Form, Input, FormInstance, Radio } from 'antd';
-import { IServerModel } from '../../infrastructure/interfaces/IServer';
+import ProForm, { DrawerForm, ProFormInstance, ProFormRadio, ProFormSelect, ProFormText, ProFormTextArea } from '@ant-design/pro-form';
+import { useEffect, useRef, useState } from 'react';
+import { ServerInstanceType } from '../../infrastructure/enums/Server';
+import { IServerFolderModel, IServerModel } from '../../infrastructure/interfaces/IServer';
 
 export interface IServerEditProps {
 	show?: boolean;
+	model?: IServerModel;
+	folders: IServerFolderModel[];
 	onEdit: (model: IServerModel) => void;
 	onAdd: (model: IServerModel) => void;
+	onLoadServerFolder: () => void;
 	onCancel: () => void;
 }
 
-export class ServerEdit extends React.Component<IServerEditProps> {
-	private formRef: RefObject<FormInstance>;
-	private addOrEdit: 'add' | 'edit';
-	private model?: IServerModel;
+export function ServerEdit(props: IServerEditProps) {
+	const formRef = useRef<ProFormInstance>();
+	const { show, model, folders, onCancel, onEdit, onAdd } = props;
 
-	constructor(props: IServerEditProps) {
-		super(props);
+	const [title, setTitile] = useState<string>();
+	const [type, setType] = useState<ServerInstanceType>(ServerInstanceType.transient);
 
-		this.addOrEdit = 'add';
-		this.formRef = React.createRef<FormInstance>();
-		this.handlerSave = this.handlerSave.bind(this);
-		this.setFormValues = this.setFormValues.bind(this);
-	}
+	useEffect(() => {
+		if (show) {
+			if (model) {
+				formRef.current?.setFieldsValue(model);
+				setTitile('编辑 <' + model.name + '>');
+				setType(model.type);
+			} else {
+				formRef.current?.resetFields();
+				setTitile('添加新服务');
+				setType(ServerInstanceType.transient);
+			}
+		}
+	}, [model, show]);
 
-	private handlerSave(): void {
-		this.formRef.current?.validateFields().then((values: IServerModel) => {
-			// values.updated_date = moment().format('YYYY-MM-DD HH:mm:ss');
-
-			// if (this.addOrEdit === 'add') {
-			// 	values.id = Guid.generate();
-			// 	values.status = ServerStatusEnum.enabled;
-			// 	values.created_date = moment().format('YYYY-MM-DD HH:mm:ss');
-
-			// 	this.props.onAdd(values);
-			// } else {
-			// 	this.props.onEdit({ ...this.model, ...values });
-			// }
-
-			if (this.addOrEdit === 'add') this.props.onAdd(values);
-			else this.props.onEdit(values);
-
-			this.props.onCancel();
-		});
-	}
-
-	public setFormValues(model?: IServerModel): void {
-		if (model === undefined) this.addOrEdit = 'add';
-		else this.addOrEdit = 'edit';
-
-		this.model = model;
-		this.formRef.current?.resetFields();
-		return this.formRef.current?.setFieldsValue(model);
-	}
-
-	public render(): JSX.Element {
-		const { TextArea } = Input;
-		const { onCancel, show } = this.props;
-		return (
-			<>
-				<Modal
-					title="新建服务"
-					visible={show}
-					forceRender={true}
-					onOk={this.handlerSave}
-					onCancel={onCancel}
-				>
-					<Form ref={this.formRef} name="add" autoComplete="off" layout="vertical">
-						<Form.Item
-							label="服务名称"
-							name="name"
-							rules={[
-								{
-									required: true,
-									message: '请输入服务名称（仅限英文字符）',
-								},
-								{
-									max: 200,
-									message: '最大长度为 200 ',
-								},
-							]}
-						>
-							<Input />
-						</Form.Item>
-						<Form.Item label="服务类型" name="type">
-							<Radio.Group buttonStyle="solid">
-								<Radio.Button value="0">多实例</Radio.Button>
-								<Radio.Button value="1">单实例</Radio.Button>
-							</Radio.Group>
-						</Form.Item>
-						<Form.Item
-							label="服务描述"
-							name="description"
-							rules={[
-								{
-									max: 4000,
-									message: '最大长度为 4000',
-								},
-							]}
-						>
-							<TextArea rows={4} />
-						</Form.Item>
-					</Form>
-				</Modal>
-			</>
-		);
-	}
+	return (
+		<>
+			<DrawerForm<IServerModel>
+				formRef={formRef}
+				title={title || '添加新服务'}
+				visible={show}
+				drawerProps={{
+					forceRender: true,
+					destroyOnClose: true,
+				}}
+				onVisibleChange={(visible) => {
+					if (!visible) onCancel();
+				}}
+				onFinish={async (values) => {
+					if (model) {
+						onEdit({ ...model, ...values });
+					} else {
+						onAdd(values);
+					}
+					onCancel();
+				}}
+			>
+				<ProForm.Group>
+					<ProFormText
+						width="md"
+						name="name"
+						label="服务名称"
+						placeholder="请输入服务名称"
+						tooltip="请输入服务名称（仅限英文字符），最大长度为 200"
+						rules={[
+							{ required: true, message: '请输入服务名称' },
+							{ max: 200, message: '最大长度为 200' },
+							{ min: 2, message: '最小长度为 2' },
+						]}
+					/>
+					<ProFormRadio.Group
+						width="md"
+						name="type"
+						label="实例类型"
+						radioType="button"
+						fieldProps={{
+							defaultValue: 0,
+							buttonStyle: 'solid',
+							onChange: (e) => {
+								setType(e.target.value);
+							},
+						}}
+						options={[
+							{ label: '多实例', value: 0 },
+							{ label: '单实例', value: 1 },
+							{ label: '业务逻辑', value: 2 },
+							{ label: '数据仓储', value: 3 },
+						]}
+					/>
+				</ProForm.Group>
+				<ProForm.Group>
+					<ProFormSelect
+						width="md"
+						label="服务"
+						name="folders"
+						mode="multiple"
+						disabled={type === ServerInstanceType.transient || type === ServerInstanceType.singleton}
+						options={folders.map((s) => {
+							return { label: s.name, value: s.id };
+						})}
+					/>
+				</ProForm.Group>
+				<ProForm.Group>
+					<ProFormTextArea width="xl" label="描述" name="description" />
+				</ProForm.Group>
+			</DrawerForm>
+		</>
+	);
 }

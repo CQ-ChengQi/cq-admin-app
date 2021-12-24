@@ -327,20 +327,12 @@ export const suggestions = (range: IRange): monaco.languages.CompletionItem[] =>
 			detail: '查询当前服务有多少尚未处理的消息',
 		},
 		{
-			label: skynet + '.task(result)',
+			label: skynet + '.stat',
 			kind: monaco.languages.CompletionItemKind.Function,
-			insertText: [skynet + '.task(${1:result})'].join('\n'),
+			insertText: ['local ${1:name} = ' + skynet + '.stat(${2:what})'].join('\n'),
 			insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
 			range: range,
-			detail: '返回当前服务尚未处理完成的任务调用堆栈信息',
-		},
-		{
-			label: skynet + '.task',
-			kind: monaco.languages.CompletionItemKind.Function,
-			insertText: [skynet + '.task()'].join('\n'),
-			insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-			range: range,
-			detail: '返回尚未处理完成的任务的个数',
+			detail: '查询当前服务的内部状态，what 可以是 endless（是否处于长期占用 cpu 的状态） 、mqlen（尚未处理的消息条数） 、message（已处理的消息条数） 、cpu （占用总 cpu 时间）',
 		},
 		{
 			label: 'local',

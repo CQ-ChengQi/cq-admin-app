@@ -1,6 +1,4 @@
-import { ServerStatusEnum } from '../enums/Server';
-import { IPageFilter } from './ITable';
-
+import { ServerInstanceType, ServerStatusEnum } from '../enums/Server';
 export interface IServerModel {
 	id: string;
 	name: string;
@@ -9,6 +7,7 @@ export interface IServerModel {
 	updated_date: string;
 	created_date: string;
 	code: string;
+	type: ServerInstanceType;
 }
 
 export interface IServerKillParamModel {
@@ -21,13 +20,13 @@ export interface IServerAction<T> {
 	state: T;
 }
 
+export interface IServerFolderModel {
+	name: string;
+	id: string;
+}
+
 export interface IServerState {
 	total: number;
 	data: IServerModel[];
-}
-
-export interface IServerFilter extends IPageFilter {
-	name: string;
-	description: string;
-	status: ServerStatusEnum;
+	folderData: IServerFolderModel[];
 }

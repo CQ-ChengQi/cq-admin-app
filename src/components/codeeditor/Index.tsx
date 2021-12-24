@@ -7,22 +7,28 @@ import { FooterToolbar, PageContainer } from '@ant-design/pro-layout';
 import ProForm, { ProFormSelect } from '@ant-design/pro-form';
 import ProCard from '@ant-design/pro-card';
 import { IServerCodeModel, IServerDenpedCodeModel, IServerSelectItemModel } from '../../infrastructure/interfaces/ICodeEditor';
-import Checkbox from 'antd/lib/checkbox/Checkbox';
-import { Tooltip } from 'antd';
+import { Tree } from 'antd';
 
 import './Index.css';
 import { CancellationToken, editor } from 'monaco-editor';
 import { languages } from 'monaco-editor/esm/vs/editor/editor.api';
+import { Button } from 'antd';
+import { CodeEditorFileTree } from './FileTree';
+import { DataNode } from 'antd/lib/tree';
+import { CodeEditorDrawerProperty } from './PropertyDrawer';
 
 export interface ICodeEditorProps {
 	id: string;
 	collapsed: boolean;
 	init: boolean;
 	code: string;
+	serviceCode?: string;
+	repositoryCode?: string;
 	serverSelectData: IServerSelectItemModel[];
 	depends: string[];
 	dependCodes: IServerDenpedCodeModel[];
 	editing: boolean;
+	tabs?: [];
 	onMonacoInit: () => void;
 	onLoadSelect: () => void;
 	onLoadDependSelect: (id: string) => void;
@@ -43,6 +49,8 @@ export function CodeEditor(props: ICodeEditorProps) {
 		code,
 		editing,
 		depends,
+		serviceCode,
+		repositoryCode,
 		onLoadCode,
 		onMonacoInit,
 		onLoadSelect,
@@ -62,7 +70,30 @@ export function CodeEditor(props: ICodeEditorProps) {
 	const [serverName, setServerName] = useState('');
 	const [load, setLoad] = useState(false);
 	const [initEditor, setInitEditor] = useState(false);
-	const [checkout, setCheckout] = useState(false);
+	const [propertyShow, setPropertyShow] = useState(false);
+	const [dataNode, setDataNode] = useState<DataNode>();
+
+	const [editorInstance, setEditorInstance] = useState<monaco.editor.IStandaloneCodeEditor>();
+
+	const treeData = [
+		{
+			title: 'helloword',
+			key: '0-0',
+			children: [
+				{ title: 'helloword', key: '0-0-0', isLeaf: true },
+				{ title: 'service', key: '0-0-2', isLeaf: true },
+				{ title: 'repository', key: '0-0-1', isLeaf: true },
+			],
+		},
+		{
+			title: 'parent 1',
+			key: '0-1',
+			children: [
+				{ title: 'leaf 1-0', key: '0-1-0', isLeaf: true },
+				{ title: 'leaf 1-1', key: '0-1-1', isLeaf: true },
+			],
+		},
+	];
 
 	const resezie = (e: any) => {
 		setWidth(e.target.innerWidth);
@@ -71,8 +102,11 @@ export function CodeEditor(props: ICodeEditorProps) {
 
 	useEffect(() => {
 		window.addEventListener('resize', resezie);
+
+		if (editorInstance) editorInstance.layout({ width: width - offsetWidth, height: height - 366 });
+
 		return () => window.removeEventListener('resize', resezie);
-	}, [width, height]);
+	}, [width, height, editorInstance, offsetWidth]);
 
 	useEffect(() => {
 		serverSelectData.forEach((item) => {
@@ -94,7 +128,6 @@ export function CodeEditor(props: ICodeEditorProps) {
 					startColumn: word.startColumn,
 					endColumn: word.endColumn,
 				};
-
 				return {
 					suggestions: suggestions(range),
 				};
@@ -127,107 +160,75 @@ export function CodeEditor(props: ICodeEditorProps) {
 		setLoad(true);
 	}
 
+	const menuClick = (info: any) => {
+		switch (info.key) {
+			case 'property':
+				setPropertyShow(true);
+				break;
+		}
+	};
+
+	const selectedClick = (node: DataNode) => {
+		setDataNode(node);
+	};
+
+	const editorDidMount = (ed: monaco.editor.IStandaloneCodeEditor) => {
+		setEditorInstance(ed);
+	};
+
 	return (
 		<>
 			<PageContainer>
+				<CodeEditorDrawerProperty show={propertyShow} node={dataNode} onCancel={() => setPropertyShow(false)} />
 				<ProCard bordered headerBordered split="vertical">
-					<ProCard title="配置" headerBordered colSpan="400px">
-						<ProForm
-							title="编辑代码"
-							labelCol={{ span: 8 }}
-							wrapperCol={{ span: 16 }}
-							layout="horizontal"
-							onFinish={async (values) => {
-								onSave({
-									id: values.server,
-									code: code,
-									depends: depends,
-									name: serverName,
-								});
-							}}
-							submitter={{
-								render: (_, dom) => {
-									return <FooterToolbar>{dom}</FooterToolbar>;
-								},
-								submitButtonProps: {
-									disabled: !editing,
-								},
-								resetButtonProps: {
-									disabled: !editing,
-								},
-							}}
-						>
-							<ProFormSelect
-								label="服务"
-								placeholder="请选择需要编辑的服务"
-								options={serverSelectData}
-								width="md"
-								disabled={editing}
-								name="server"
-								fieldProps={{
-									onChange: (val) => {
-										if (!editing) onClear();
-										if (val) {
-											const selected = serverSelectData.filter((item) => item.value === val);
-											setServerName(selected[0].label as string);
-											setDependSelectData(serverSelectData.filter((item) => item.value !== val));
-											onLoadDependSelect(val);
-											onLoadCode(val);
-										} else {
-											setDependSelectData(defaultDepend);
-										}
-									},
-									value: id,
-								}}
-							/>
-							<ProFormSelect
-								label="依赖服务"
-								width={'md'}
-								options={dependSelectData}
-								mode="multiple"
-								placeholder="请选择需要依赖的服务"
-								name="depend"
-								fieldProps={{
-									onChange: (val) => {
-										onSetDepends(val);
-									},
-									value: depends,
-								}}
-							/>
-						</ProForm>
+					<ProCard headerBordered colSpan="400px">
+						<CodeEditorFileTree treeData={treeData} handlerMenuClick={menuClick} handlerSelected={(node) => selectedClick(node)} />
 					</ProCard>
 					<ProCard
 						colSpan="calc(100% - 400px)"
-						title="Lua 代码"
 						headerBordered
 						style={{ overflow: 'hidden' }}
-						extra={[
-							<Tooltip key="checkout-tip" title="签出代码进行编辑">
-								<Checkbox
-									key="checkout"
-									checked={checkout}
-									onChange={(e) => {
-										setCheckout(e.target.checked);
-									}}
-								/>
-							</Tooltip>,
-						]}
+						tabs={{
+							type: 'line',
+							tabPosition: 'top',
+						}}
 					>
-						<MonacoEditor
-							className="monaco-editor"
-							language="lua"
-							theme="vs"
-							width={width - offsetWidth}
-							height={height - 366}
-							options={{
-								selectOnLineNumbers: true,
-							}}
-							onChange={(value) => {
-								onSetCode(value);
-								setSuggestionCode(value);
-							}}
-							value={code}
-						/>
+						<ProCard.TabPane key="main" tab="主服务">
+							<MonacoEditor
+								className="monaco-editor"
+								language="lua"
+								theme="vs"
+								// width={width - offsetWidth}
+								// height={height - 366}
+								options={{
+									selectOnLineNumbers: true,
+								}}
+								onChange={(value) => {
+									onSetCode(value);
+									setSuggestionCode(value);
+								}}
+								value={code}
+								editorDidMount={editorDidMount}
+							/>
+						</ProCard.TabPane>
+						<ProCard.TabPane key="service" tab="逻辑">
+							<MonacoEditor
+								className="monaco-editor"
+								language="lua"
+								theme="vs"
+								// width={width - offsetWidth}
+								// height={height - 366}
+								options={{
+									selectOnLineNumbers: true,
+								}}
+								onChange={(value) => {
+									onSetCode(value);
+									setSuggestionCode(value);
+								}}
+								value={code}
+								editorDidMount={editorDidMount}
+							/>
+						</ProCard.TabPane>
 					</ProCard>
 				</ProCard>
 			</PageContainer>

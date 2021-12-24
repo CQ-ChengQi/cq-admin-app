@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Modal } from 'antd';
 import { ServerTable } from './Table';
 import { ServerEdit } from './Edit';
-import { IServerModel } from '../../infrastructure/interfaces/IServer';
+import { IServerFolderModel, IServerModel } from '../../infrastructure/interfaces/IServer';
 import { IPage } from '../../infrastructure/interfaces/ITable';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-layout';
@@ -12,6 +12,7 @@ const { confirm } = Modal;
 
 export interface IServerProps {
 	onAddAsync: (state: IServerModel) => void;
+	onEditAsync: (state: IServerModel) => void;
 	onRunAsync: (state: IServerModel) => void;
 	onEditCodeAsync: (state: IServerModel) => void;
 	onDisbaledAsync: (id: string) => void;
@@ -19,22 +20,39 @@ export interface IServerProps {
 	onDelAsync: (id: string) => void;
 	onInitAsync: (page: IPage) => void;
 	onClearAsync: () => void;
+	onLoadServerFolderAsync: () => void;
 	data: IServerModel[];
 	total: number;
 	siderbarWidth: number;
+	folderData: IServerFolderModel[];
 }
 
 export default function Server(props: IServerProps) {
-	const { onAddAsync, onInitAsync, onRunAsync, onDisbaledAsync, onEnabledAsync, onDelAsync, onClearAsync, data, total } = props;
-
+	const {
+		onAddAsync,
+		onInitAsync,
+		onRunAsync,
+		onDisbaledAsync,
+		onEnabledAsync,
+		onDelAsync,
+		onClearAsync,
+		onEditAsync,
+		onLoadServerFolderAsync,
+		data,
+		total,
+		folderData,
+	} = props;
 	const [showEdit, setShowEdit] = useState(false);
+	const [model, setModel] = useState<IServerModel>();
 
 	const handlerHideEdit = () => {
 		setShowEdit(false);
 	};
 
 	const handlerShowEdit = (model?: IServerModel) => {
+		setModel(model);
 		setShowEdit(true);
+		onLoadServerFolderAsync();
 	};
 
 	const handlerClear = () => {
@@ -66,7 +84,15 @@ export default function Server(props: IServerProps) {
 					onAdd={() => handlerShowEdit()}
 					total={total}
 				/>
-				<ServerEdit show={showEdit} onAdd={(model) => onAddAsync(model)} onEdit={(model) => {}} onCancel={() => handlerHideEdit()} />
+				<ServerEdit
+					show={showEdit}
+					onAdd={(model) => onAddAsync(model)}
+					onEdit={(model) => onEditAsync(model)}
+					onCancel={() => handlerHideEdit()}
+					onLoadServerFolder={() => onLoadServerFolderAsync()}
+					model={model}
+					folders={folderData}
+				/>
 			</PageContainer>
 		</>
 	);

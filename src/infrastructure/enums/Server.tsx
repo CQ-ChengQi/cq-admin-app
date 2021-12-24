@@ -6,4 +6,6 @@ export enum ServerStatusEnum {
 export enum ServerInstanceType {
 	transient,
 	singleton,
+	libservice,
+	librepository,
 }

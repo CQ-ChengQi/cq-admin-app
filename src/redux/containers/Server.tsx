@@ -12,6 +12,7 @@ const mapStateToProps = (state: any) => {
 		instanceData: state.server.instanceData,
 		insatnceTotal: state.server.instanceTotal,
 		siderbarWidth: state.layout.siderbarWidth,
+		folderData: state.server.folderData,
 	};
 };
 
@@ -24,6 +25,9 @@ const mapDispatchToProps = (dispatch: ThunkDispatch<{}, {}, any>) => ({
 	},
 	onAddAsync: async (state: IServerModel) => {
 		dispatch(actions.addAsync(state));
+	},
+	onEditAsync: async (state: IServerModel) => {
+		dispatch(actions.editAsync(state));
 	},
 	onInitAsync: async (page: IPage) => {
 		dispatch(actions.initAsync(page));
@@ -39,6 +43,9 @@ const mapDispatchToProps = (dispatch: ThunkDispatch<{}, {}, any>) => ({
 	},
 	onClearAsync: async () => {
 		dispatch(actions.clearAsync());
+	},
+	onLoadServerFolderAsync: async () => {
+		dispatch(actions.loadServerFolderAsync());
 	},
 });
 

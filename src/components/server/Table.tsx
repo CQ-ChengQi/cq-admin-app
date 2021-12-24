@@ -1,8 +1,6 @@
-import React, { useState } from 'react';
-import { Button, Dropdown, Menu, Modal, Space, Tag } from 'antd';
-import { DownOutlined, ExclamationCircleOutlined, PlusOutlined, ClearOutlined } from '@ant-design/icons';
-import MenuItem from 'antd/lib/menu/MenuItem';
-
+import { useState } from 'react';
+import { Button, Input, Modal, Popconfirm, Space, Tag } from 'antd';
+import { ExclamationCircleOutlined, PlusOutlined, ClearOutlined } from '@ant-design/icons';
 import { IServerModel } from '../../infrastructure/interfaces/IServer';
 import { ServerStatusEnum } from '../../infrastructure/enums/Server';
 import { IPage } from '../../infrastructure/interfaces/ITable';
@@ -24,54 +22,62 @@ export interface IServerTableProps {
 /**
  * 操作列 。
  */
-const action = (props: IServerTableProps, record: IServerModel) => {
+const action = (props: IServerTableProps, record: IServerModel, instanceCount: number, setInstanceCount: React.Dispatch<React.SetStateAction<number>>) => {
 	const { confirm } = Modal;
 	const { onEdit, onRun, onDisbaled, onEnabled, onDel } = props;
+
 	return (
 		<>
 			<Space size="middle">
 				<Button type="primary" size="small" onClick={() => onEdit(record)}>
 					编辑
 				</Button>
-				<Button type="primary" size="small" onClick={() => onRun(record)}>
-					运行
-				</Button>
-				<Dropdown
-					trigger={['click']}
-					overlay={
-						<Menu>
-							<MenuItem
-								key="disbaled"
-								onClick={() => (record.status === ServerStatusEnum.enabled ? onDisbaled(record.id) : onEnabled(record.id))}
-							>
-								{record.status === ServerStatusEnum.enabled ? '禁用' : '启用'}
-							</MenuItem>
-							<Menu.Divider></Menu.Divider>
-							<MenuItem
-								key="del"
-								onClick={() => {
-									confirm({
-										title: '系统提示',
-										icon: <ExclamationCircleOutlined />,
-										content: '是否删除 "' + record.name + '" 服务 ?',
-										okText: '删除',
-										okType: 'danger',
-										cancelText: '取消',
-										onOk() {
-											onDel(record.id);
-										},
-									});
-								}}
-							>
-								删除
-							</MenuItem>
-						</Menu>
-					}
+				<Popconfirm
+					key="run"
+					title={[
+						'运行实例数量',
+						<Input
+							key="runNumber"
+							type="number"
+							value={instanceCount}
+							onChange={(e) => {
+								console.log(e);
+								setInstanceCount(Number(e.target.value));
+							}}
+						></Input>,
+					]}
+					onConfirm={(e) => {
+						for (let index = 0; index < Number(instanceCount); index++) {
+							onRun(record);
+						}
+					}}
 				>
 					<Button type="primary" size="small">
-						更多 <DownOutlined />
+						运行
 					</Button>
-				</Dropdown>
+				</Popconfirm>
+				<Button type="primary" size="small" onClick={() => (record.status === ServerStatusEnum.enabled ? onDisbaled(record.id) : onEnabled(record.id))}>
+					{record.status === ServerStatusEnum.enabled ? '禁用' : '启用'}
+				</Button>
+				<Button
+					type="primary"
+					size="small"
+					onClick={() => {
+						confirm({
+							title: '系统提示',
+							icon: <ExclamationCircleOutlined />,
+							content: '是否删除 "' + record.name + '" 服务 ?',
+							okText: '删除',
+							okType: 'danger',
+							cancelText: '取消',
+							onOk() {
+								onDel(record.id);
+							},
+						});
+					}}
+				>
+					删除
+				</Button>
 			</Space>
 		</>
 	);
@@ -82,6 +88,7 @@ export function ServerTable(props: IServerTableProps) {
 
 	const [pageSize, setPageSize] = useState(10);
 	const [page, setPage] = useState(1);
+	const [instanceCount, setInstanceCount] = useState(1);
 
 	return (
 		<>
@@ -95,11 +102,15 @@ export function ServerTable(props: IServerTableProps) {
 					setPage(Number(params.current));
 					setPageSize(Number(params.pageSize));
 
+					let filters: any = {};
+					for (var item in params) {
+						let key = item.toLowerCase();
+						filters[key] = params[item];
+					}
+
 					onInit({
-						page: Number(params.current),
-						pagesize: Number(params.pageSize),
-						...params,
-						...sorter,
+						filters: filters,
+						sorters: sorter,
 					});
 
 					return {
@@ -138,7 +149,7 @@ export function ServerTable(props: IServerTableProps) {
 						sorter: {
 							multiple: 2,
 						},
-						render: (dom, record) => {
+						render: (_, record) => {
 							return (
 								<Button type="link" size="small" onClick={() => onEdit(record)}>
 									{record.name}
@@ -160,9 +171,8 @@ export function ServerTable(props: IServerTableProps) {
 						fixed: 'left',
 						valueType: 'select',
 						valueEnum: {
-							all: { text: '全部', status: 'default' },
-							disbaled: { text: '禁用', status: 'disbaled' },
-							enabled: { text: '启用', status: 'enabled' },
+							'1': '禁用',
+							'0': '启用',
 						},
 						render: (_, record) => (record.status === ServerStatusEnum.disbaled ? <Tag color="red">禁用</Tag> : <Tag color="green">启用</Tag>),
 					},
@@ -197,7 +207,7 @@ export function ServerTable(props: IServerTableProps) {
 						hideInSearch: true,
 						hideInForm: true,
 						hideInSetting: true,
-						render: (_, record: IServerModel) => action(props, record),
+						render: (_, record: IServerModel) => action(props, record, instanceCount, setInstanceCount),
 					},
 				]}
 			/>

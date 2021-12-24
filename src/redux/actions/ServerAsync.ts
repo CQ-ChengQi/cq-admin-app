@@ -2,7 +2,7 @@ import { Dispatch } from 'redux';
 import { message } from 'antd';
 import { post } from '../../infrastructure/common/Server';
 import { IActionResult, IPage, IPageResult } from '../../infrastructure/interfaces/ITable';
-import { IServerModel } from '../../infrastructure/interfaces/IServer';
+import { IServerFolderModel, IServerModel } from '../../infrastructure/interfaces/IServer';
 import * as actions from './Server';
 
 export const editCodeAsync = (state: IServerModel) => (dispatch: Dispatch) => {
@@ -61,5 +61,17 @@ export const disbaledAsync = (id: string) => {
 export const initAsync = (state: IPage) => (dispatch: Dispatch) => {
 	post<IPageResult<IServerModel>>('/api/server/get', state).then((res) => {
 		dispatch(actions.init(res));
+	});
+};
+
+export const editAsync = (model: IServerModel) => (dispatch: Dispatch) => {
+	post<IActionResult<IServerModel>>('/api/server/edit', model).then((res) => {
+		dispatch(actions.edit(res.data));
+	});
+};
+
+export const loadServerFolderAsync = () => (dispatch: Dispatch) => {
+	post<IPageResult<IServerFolderModel>>('/api/server/folder/get', {}).then((res) => {
+		dispatch(actions.loadServerFolder(res));
 	});
 };
